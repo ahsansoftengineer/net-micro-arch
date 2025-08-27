@@ -1,12 +1,12 @@
 version: "3.9"
 
 services:
-  srvc-sba-hierarchy:
+  sba-srvc-hierarchy:
     build:
       context: .
       dockerfile: Dockerfile
-    image: mansanhhub/srvc-sba-hierarchy
-    container_name: srvc-sba-hierarchy
+    image: mansanhhub/sba-srvc-hierarchy
+    container_name: sba-srvc-hierarchy
     environment:
       - ASPNETCORE_URLS=http://+:1106
       - DOTNET_ENVIRONMENT=DockerCompose

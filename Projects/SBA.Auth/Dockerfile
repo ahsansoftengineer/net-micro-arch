@@ -1,9 +1,9 @@
 # ===========================================================
 # Build:
-# docker build -t mansanhhub/srvc-sba-auth -f Projects/SBA.Auth/Dockerfile .
-# docker push mansanhhub/srvc-sba-auth
-# docker run -d --name srvc-sba-auth -p 1104:1104 -e DOTNET_ENVIRONMENT=Docker mansanhhub/srvc-sba-auth
-# docker rm -f srvc-sba-auth
+# docker build -t mansanhhub/sba-srvc-auth -f Projects/SBA.Auth/Dockerfile .
+# docker push mansanhhub/sba-srvc-auth
+# docker run -d --name sba-srvc-auth -p 1104:1104 -e DOTNET_ENVIRONMENT=Docker mansanhhub/sba-srvc-auth
+# docker rm -f sba-srvc-auth
 # docker exec -it <container_id> /bin/bash
 
 # http://localhost:1104/api/auth/v1/swagger/index.html

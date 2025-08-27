@@ -1,6 +1,6 @@
 {
   "GlobalConfiguration": {
-    "BaseUrl": "http://srvc-cip-sba-gateway:1100"
+    "BaseUrl": "http://sba-srvc-cip-gateway:1100"
   },
   "Routes": [
         {
@@ -8,7 +8,7 @@
       "DownstreamPathTemplate": "/api/job/v1/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-job", "Port": 1102 }
+        { "Host": "sba-srvc-cip-job", "Port": 1102 }
       ],
       "UpstreamPathTemplate": "/api/job/v1/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ]
@@ -18,7 +18,7 @@
       "DownstreamPathTemplate": "/api/job/v1/swagger-doc/swagger.json",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-job", "Port": 1102 }
+        { "Host": "sba-srvc-cip-job", "Port": 1102 }
       ],
       "UpstreamPathTemplate": "/api/job/v1/swagger-doc/swagger.json",
       "UpstreamHttpMethod": [ "GET" ]
@@ -28,7 +28,7 @@
       "DownstreamPathTemplate": "/api/auth/v1/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-auth", "Port": 1104 }
+        { "Host": "sba-srvc-cip-auth", "Port": 1104 }
       ],
       "UpstreamPathTemplate": "/api/auth/v1/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ]
@@ -38,7 +38,7 @@
       "DownstreamPathTemplate": "/api/auth/v1/swagger-doc/swagger.json",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-auth", "Port": 1104 }
+        { "Host": "sba-srvc-cip-auth", "Port": 1104 }
       ],
       "UpstreamPathTemplate": "/api/auth/v1/swagger-doc/swagger.json",
       "UpstreamHttpMethod": [ "GET" ]
@@ -49,7 +49,7 @@
       "DownstreamPathTemplate": "/api/hierarchy/v1/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-hierarchy", "Port": 1106 }
+        { "Host": "sba-srvc-cip-hierarchy", "Port": 1106 }
       ],
       "UpstreamPathTemplate": "/api/hierarchy/v1/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH" ]
@@ -59,7 +59,7 @@
       "DownstreamPathTemplate": "/api/hierarchy/v1/swagger-doc/swagger.json",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
-        { "Host": "srvc-cip-sba-hierarchy", "Port": 1106 }
+        { "Host": "sba-srvc-cip-hierarchy", "Port": 1106 }
       ],
       "UpstreamPathTemplate": "/api/hierarchy/v1/swagger-doc/swagger.json",
       "UpstreamHttpMethod": [ "GET" ]

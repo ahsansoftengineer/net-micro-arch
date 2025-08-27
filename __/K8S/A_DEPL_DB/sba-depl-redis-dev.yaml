@@ -1,9 +1,9 @@
 ################~~~~ Redis SBA Hierarchy ~~~~~##################
 #### Run Command
 ## BASH
-# kubectl apply -f ./__/K8S/A_DEPL_DB/depl-redis-sba-dev.yaml
-# kubectl delete -f ./__/K8S/A_DEPL_DB/depl-redis-sba-dev.yaml
-# kubectl rollout restart deployments depl-redis-sba-dev
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-redis-dev.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-redis-dev.yaml
+# kubectl rollout restart deployments sba-depl-redis-dev
 
 ## Connect
 # redis-cli -h 127.0.0.1 -p 6379 -a 'P@55w0rd!123'
@@ -13,12 +13,12 @@
 # - This Task Done Only Once
 # - Creating Claim for Redis
 # kubectl get pvc
-# kubectl get pvc claim-redis-sba-dev
-# kubectl delete pvc claim-redis-sba-dev
+# kubectl get pvc sba-claim-redis-dev
+# kubectl delete pvc sba-claim-redis-dev
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: claim-redis-sba-dev
+  name: sba-claim-redis-dev
 spec:
   resources:
     requests:
@@ -30,21 +30,21 @@ spec:
 
 #### (3) Redis Deployment (Hierarchy) 
 # - kubectl get deployment
-# - kubectl get deployment depl-redis-sba-dev
-# - kubectl delete deployment depl-redis-sba-dev
+# - kubectl get deployment sba-depl-redis-dev
+# - kubectl delete deployment sba-depl-redis-dev
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: depl-redis-sba-dev
+  name: sba-depl-redis-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redis-sba-dev
+      app: sba-redis-dev
   template:
     metadata:
       labels:
-        app: redis-sba-dev
+        app: sba-redis-dev
     spec:
       enableServiceLinks: false   # ✅ disables auto-injected env vars
       containers:
@@ -66,7 +66,7 @@ spec:
       volumes:
         - name: redisdb
           persistentVolumeClaim:
-            claimName: claim-redis-sba-dev
+            claimName: sba-claim-redis-dev
 
 ---
 
@@ -75,15 +75,15 @@ spec:
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
 # - kubectl get svc
-# - kubectl get svc srvc-cip-redis-sba-dev
+# - kubectl get svc sba-srvc-cip-redis-dev
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-cip-redis-sba-dev
+  name: sba-srvc-cip-redis-dev
 spec:
   type: ClusterIP
   selector:
-    app: redis-sba-dev
+    app: sba-redis-dev
   ports:
     - name: redis
       protocol: TCP
@@ -96,17 +96,17 @@ spec:
 #### (6) Redis LoadBalancer (Hierarchy)
 # - We need LoadBalancer for External Service Access
 # - No Production Required
-# - kubectl get svc srvc-lb-redis-sba-dev
+# - kubectl get svc sba-srvc-lb-redis-dev
 ## Credentials for LoadBalancer
 # - 127.0.0.1,6379 'P@55w0rd!123'
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-lb-redis-sba-dev
+  name: sba-srvc-lb-redis-dev
 spec:
   type: LoadBalancer
   selector:
-    app: redis-sba-dev
+    app: sba-redis-dev
   ports:
     - protocol: TCP
       port: 6379

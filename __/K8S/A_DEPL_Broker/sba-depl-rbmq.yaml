@@ -1,13 +1,13 @@
 ################~~~~ Rabbit MQ SBA ~~~~~##################
 #### Run Command
 ## BASH
-# kubectl apply -f ./__/K8S/A_DEPL_Broker/depl-rbmq-sba.yaml
-# kubectl delete -f ./__/K8S/A_DEPL_Broker/depl-rbmq-sba.yaml
-# kubectl rollout restart deployments depl-rbmq-sba
+# kubectl apply -f ./__/K8S/A_DEPL_Broker/sba-depl-rbmq.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_Broker/sba-depl-rbmq.yaml
+# kubectl rollout restart deployments sba-depl-rbmq
 
 ## Adding VHost to RabbitMQ
-# kubectl exec -it deploy/depl-rbmq-sba -- rabbitmqctl add_vhost /sba
-# kubectl exec -it deploy/depl-rbmq-sba -- rabbitmqctl set_permissions -p /sba admin ".*" ".*" ".*"
+# kubectl exec -it deploy/sba-depl-rbmq -- rabbitmqctl add_vhost /sba
+# kubectl exec -it deploy/sba-depl-rbmq -- rabbitmqctl set_permissions -p /sba admin ".*" ".*" ".*"
 
 
 #-----------------------------#
@@ -42,24 +42,24 @@
 #-----------------------------#
 # (1) RabbitMQ Deployment (SBA)
 # - kubectl get deployment
-# - kubectl get deployment depl-rbmq-sba
+# - kubectl get deployment sba-depl-rbmq
 # - docker exec -it contID rabbitmqctl list_users # aec4
 # - docker exec -it aec4 rabbitmqctl list_vhosts
-# - kubectl delete deployment depl-rbmq-sba
+# - kubectl delete deployment sba-depl-rbmq
 #-----------------------------#
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: depl-rbmq-sba
+  name: sba-depl-rbmq
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rbmq-sba
+      app: sba-rbmq
   template:
     metadata:
       labels:
-        app: rbmq-sba
+        app: sba-rbmq
     spec:
       enableServiceLinks: false   # ✅ disables auto-injected env vars
       containers:
@@ -92,17 +92,17 @@ spec:
 # (2) RabbitMQ ClusterIP Service (for internal)
 # - Production Required
 # - kubectl get svc
-# - kubectl get svc srvc-cip-rbmq-sba
+# - kubectl get svc sba-srvc-cip-rbmq
 #---------------------------------------------#
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-cip-rbmq-sba
+  name: sba-srvc-cip-rbmq
 spec:
   type: ClusterIP
   selector:
-    app: rbmq-sba
+    app: sba-rbmq
   ports:
     - name: management
       port: 15672
@@ -117,17 +117,17 @@ spec:
 # (3) RabbitMQ LoadBalancer Service (external)
 # - Production Required
 # - kubectl get svc
-# - kubectl get svc srvc-lb-rbmq-sba
+# - kubectl get svc sba-srvc-lb-rbmq
 # - http://localhost:15670/#/exchanges
 #---------------------------------------------#
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-lb-rbmq-sba
+  name: sba-srvc-lb-rbmq
 spec:
   type: LoadBalancer
   selector:
-    app: rbmq-sba
+    app: sba-rbmq
   ports:
     - name: management
       port: 15670 # External Port

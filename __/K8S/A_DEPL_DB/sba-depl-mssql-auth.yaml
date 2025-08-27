@@ -1,33 +1,20 @@
-################~~~~ DB SBA Hierarchy ~~~~~##################
-# - Password Secret (Optional)
-# - Persistent Volume Claim (PVC)
-# - Deployment
-# - ClusterIP
-# - Node Port (Optional) External Access
-# - Load Balancer (Optional) External Access
-
+################~~~~ DB SBA Auth ~~~~~##################
 #### Run Command
 ## BASH
-# kubectl apply -f ./__/K8S/A_DEPL_DB/depl-mssql-sba-hierarchy.yaml
-# kubectl delete -f ./__/K8S/A_DEPL_DB/depl-mssql-sba-hierarchy.yaml
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-auth.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-auth.yaml
 
-#### (1) DB Password Secret (SQL) (Optional)
-# - Becareful with Password Complexity
-# kubectl create secret generic mssql --from-literal=SA_PASSWORD='P@55w0rd!123' 
-# kubectl describe secret mssql
-# kubectl get secret mssql
-# kubectl delete secret mssql
-#### (3) DB Claim (Hierarchy) 
+#### (3) DB Claim (Auth) 
 
 # - This Task Done Only Once
 # - Creating Claim for Database
 # kubectl get pvc
-# kubectl get pvc claim-mssql-sba-hierarchy
-# kubectl delete pvc claim-mssql-sba-hierarchy
+# kubectl get pvc sba-claim-mssql-auth
+# kubectl delete pvc sba-claim-mssql-auth
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: claim-mssql-sba-hierarchy
+  name: sba-claim-mssql-auth
 spec:
   resources:
     requests:
@@ -36,23 +23,23 @@ spec:
   - ReadWriteMany
 
 ---
-#### (3) DB Deployment (Hierarchy) 
+#### (3) DB Deployment (Auth) 
 # - kubectl get deployment
-# - kubectl get deployment depl-mssql-sba-hierarchy
-# - kubectl delete deployment depl-mssql-sba-hierarchy
+# - kubectl get deployment sba-depl-mssql-auth
+# - kubectl delete deployment sba-depl-mssql-auth
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: depl-mssql-sba-hierarchy
+  name: sba-depl-mssql-auth
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mssql-sba-hierarchy
+      app: mssql-sba-auth
   template:
     metadata:
       labels:
-        app: mssql-sba-hierarchy
+        app: mssql-sba-auth
     spec:
       enableServiceLinks: false   # ✅ disables auto-injected env vars
       containers:
@@ -93,23 +80,23 @@ spec:
       volumes:
         - name: mssqldb
           persistentVolumeClaim:
-            claimName: claim-mssql-sba-hierarchy
+            claimName: sba-claim-mssql-auth
 
 ---
 #------------------------------------------------------------------------- 
-#### (4) DB ClusterIP (Hierarchy)
+#### (4) DB ClusterIP (Auth)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
 # - kubectl get svc
-# - kubectl get svc srvc-cip-mssql-sba-hierarchy
+# - kubectl get svc sba-srvc-cip-mssql-auth
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-cip-mssql-sba-hierarchy
+  name: sba-srvc-cip-mssql-auth
 spec:
   type: ClusterIP
   selector:
-    app: mssql-sba-hierarchy
+    app: mssql-sba-auth
   ports:
     - name: mssql
       protocol: TCP
@@ -117,23 +104,22 @@ spec:
       targetPort: 1433 # Port -> (Pod / Container)
 
 ---
-
 #-------------------------------------------------------------------------
-#### (6) DB LoadBalancer (Hierarchy) (Optional)
+#### (6) DB LoadBalancer (Auth)
 # - We need LoadBalancer for External Service Access
 # - No Production Required
-# - kubectl get svc srvc-lb-mssql-sba-hierarchy
+# - kubectl get svc sba-srvc-lb-mssql-auth
 ## Creadentials for LoadBalancer
 # - 127.0.0.1,1433 sa 'P@55w0rd!123'
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-lb-mssql-sba-hierarchy
+  name: sba-srvc-lb-mssql-auth
 spec:
   type: LoadBalancer
   selector:
-    app: mssql-sba-hierarchy
+    app: mssql-sba-auth
   ports:
     - protocol: TCP
-      port: 2006 # External
+      port: 2004 # External
       targetPort: 1433

@@ -3,46 +3,46 @@
 # - ClusterIP
 # - Node Port
 
-## BASH BUILD Dockerfile srvc-sba-job
+## BASH BUILD Dockerfile sba-srvc-job
 ## -t tagname, -f file/reference, ./buildContext  
 # docker system prune
-# docker build -t mansanhhub/srvc-sba-job -f Projects/SBA.Job/Dockerfile .
+# docker build -t mansanhhub/sba-srvc-job -f Projects/SBA.Job/Dockerfile .
 # kubectl get nodes -o wide
-# docker push mansanhhub/srvc-sba-job
-# docker pull mansanhhub/srvc-sba-job
+# docker push mansanhhub/sba-srvc-job
+# docker pull mansanhhub/sba-srvc-job
 
 #------------------------------------------------------------------------- 
-## BASH RUN Deployment srvc-sba-job
-# kubectl apply -f ./__/K8S/B_DEPL_SRVC/depl-sba-job.yaml
+## BASH RUN Deployment sba-srvc-job
+# kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
 # kubectl get pods
 # kubectl get deployments
-# kubectl logs -l app=srvc-sba-job --all-containers=true --tail=-1
-# kubectl rollout restart deployments depl-sba-job
+# kubectl logs -l app=sba-srvc-job --all-containers=true --tail=-1
+# kubectl rollout restart deployments sba-depl-job
 
 ## BASH DELETE (Deployments & Service)8
-# kubectl delete -f ./__/K8S/B_DEPL_SRVC/depl-sba-job.yaml
-# kubectl delete deployments depl-sba-job
-# kubectl delete services srvc-cip-sba-job
+# kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
+# kubectl delete deployments sba-depl-job
+# kubectl delete services sba-srvc-cip-job
 #------------------------------------------------------------------------- 
 #### (1) API Deployment (Job) 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: depl-sba-job
+  name: sba-depl-job
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: srvc-sba-job
+      app: sba-srvc-job
   template:
     metadata:
       labels:
-        app: srvc-sba-job
+        app: sba-srvc-job
     spec:
       enableServiceLinks: false   # ✅ disables auto-injected env vars
       containers:
-        - name: srvc-sba-job
-          image: mansanhhub/srvc-sba-job
+        - name: sba-srvc-job
+          image: mansanhhub/sba-srvc-job
           imagePullPolicy: Always
           ports:
             - containerPort: 1102
@@ -53,21 +53,21 @@ spec:
               value: http://+:1102
 
             - name: ConnectionStrings__Redis
-              value: "srvc-cip-redis-sba-dev:6379,password=P@55w0rd!123"
+              value: "sba-srvc-cip-redis-dev:6379,password=P@55w0rd!123"
             - name: ConnectionStrings__SqlConnection
-              value: "Server=srvc-cip-mssql-sba-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+              value: "Server=sba-srvc-cip-mssql-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
             - name: ConnectionStrings__SqlConnectionHangfire
-              value: "Server=srvc-cip-mssql-sba-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job_Hangfire;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+              value: "Server=sba-srvc-cip-mssql-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job_Hangfire;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
             - name: ConnectionStrings__SQLite
               value: "Job.SQLite.db"
 
             - name: Clients__Http_Host__Gateway
-              value: http://srvc-cip-sba-gateway:1100
+              value: http://sba-srvc-cip-gateway:1100
             - name: Clients__Http_Host__Auth
-              value: http://srvc-cip-sba-auth:1104
+              value: http://sba-srvc-cip-auth:1104
 
             - name: Clients__RabbitMQz__HostName
-              value: srvc-cip-rbmq-sba
+              value: sba-srvc-cip-rbmq
             - name: Clients__RabbitMQz__Port
               value: "5672"
             - name: Clients__RabbitMQz__VirtualHost
@@ -91,21 +91,21 @@ spec:
 #### (2) API Cluster IP (Job)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
-# kubectl port-forward svc/srvc-cip-sba-job 1102:1102
-# http://srvc-cip-sba-job:1102/api/job/v1/swagger/index.html
-# http://srvc-cip-sba-job:1102/api/job/v1/_projectz-lookup/gets-lookup
-# http://srvc-cip-sba-job:1102/api/job/v1/hangfire
+# kubectl port-forward svc/sba-srvc-cip-job 1102:1102
+# http://sba-srvc-cip-job:1102/api/job/v1/swagger/index.html
+# http://sba-srvc-cip-job:1102/api/job/v1/_projectz-lookup/gets-lookup
+# http://sba-srvc-cip-job:1102/api/job/v1/hangfire
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-cip-sba-job
+  name: sba-srvc-cip-job
 spec:
   type: ClusterIP
   selector:
-    app: srvc-sba-job
+    app: sba-srvc-job
   ports:
-  - name: srvc-sba-job
+  - name: sba-srvc-job
     protocol: TCP
     port: 1102
     targetPort: 1102
@@ -119,13 +119,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: srvc-np-sba-job
+  name: sba-srvc-np-job
 spec:
   type: NodePort
   selector:
-    app: srvc-sba-job
+    app: sba-srvc-job
   ports:
-    - name: srvc-sba-job
+    - name: sba-srvc-job
       protocol: TCP
       port: 1102 # Node Port
       targetPort: 1102 # Pod's App port
