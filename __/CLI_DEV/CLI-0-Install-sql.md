@@ -2,12 +2,12 @@
 ```bash
 docker pull mcr.microsoft.com/mssql/server:2022-latest
 docker image ls
-docker run --name sql-sba-dev -e 'HOMEBREW_NO_ENV_FILTERING=1' -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=P@55w0rd!123' -p 1430:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+docker run --name sba-sql-dev -e 'HOMEBREW_NO_ENV_FILTERING=1' -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=P@55w0rd!123' -p 1430:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
-docker run --name sql-sba-stage -e 'HOMEBREW_NO_ENV_FILTERING=1' -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=P@55w0rd!123' -p 1431:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+docker run --name sba-sql-stage -e 'HOMEBREW_NO_ENV_FILTERING=1' -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=P@55w0rd!123' -p 1431:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
-docker stop sql-sba-dev
-docker rm sql-sba-dev
+docker stop sba-sql-dev
+docker rm sba-sql-dev
 docker container ls
 docker ps
 ```
@@ -21,9 +21,9 @@ docker ps
 ```bash
 docker pull redis
 # docker run --name sba-redis-srvr -p 6379:6379 -d redis
-docker run --name dev-sba-redis -p 6379:6379 -d redis redis-server --requirepass 'P@55w0rd!123'
-docker stop dev-sba-redis
-docker rm dev-sba-redis
+docker run --name sba-dev-redis -p 6379:6379 -d redis redis-server --requirepass 'P@55w0rd!123'
+docker stop sba-dev-redis
+docker rm sba-dev-redis
 sudo apt install redis-tools
 
 redis-cli -a 'P@55w0rd!123'
