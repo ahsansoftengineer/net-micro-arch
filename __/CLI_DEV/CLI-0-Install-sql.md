@@ -21,9 +21,9 @@ docker ps
 ```bash
 docker pull redis
 # docker run --name sba-redis-srvr -p 6379:6379 -d redis
-docker run --name sba-dev-redis -p 6379:6379 -d redis redis-server --requirepass 'P@55w0rd!123'
-docker stop sba-dev-redis
-docker rm sba-dev-redis
+docker run --name sba-redis-dev -p 6379:6379 -d redis redis-server --requirepass 'P@55w0rd!123'
+docker stop sba-redis-dev
+docker rm sba-redis-dev
 sudo apt install redis-tools
 
 redis-cli -a 'P@55w0rd!123'
@@ -32,8 +32,8 @@ get myKey
 ```
 ### Rabbit MQ
 ```bash
-docker run -d --name dev-sba-rabbit-mq --hostname dev-sba-rabbit-host -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-docker stop dev-sba-rabbit-mq
-docker rm dev-sba-rabbit-mq
+docker run -d --name sba-rabbit-mq-dev --hostname dev-sba-rabbit-host -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+docker stop sba-rabbit-mq-dev
+docker rm sba-rabbit-mq-dev
 
 ```
