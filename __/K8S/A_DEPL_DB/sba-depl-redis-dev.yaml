@@ -6,6 +6,7 @@
 # kubectl rollout restart deployments sba-depl-redis-dev
 
 # kubectl port-forward svc/sba-srvc-cip-redis-dev 6379:6379
+# ps aux | grep kubectl
 
 ## Connect
 # redis-cli -h 127.0.0.1 -p 6379 -a 'P@55w0rd!123'
