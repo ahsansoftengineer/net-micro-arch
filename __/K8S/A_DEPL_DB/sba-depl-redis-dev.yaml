@@ -5,8 +5,11 @@
 # kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-redis-dev.yaml
 # kubectl rollout restart deployments sba-depl-redis-dev
 
+# kubectl port-forward svc/sba-srvc-cip-redis-dev 6379:6379
+
 ## Connect
 # redis-cli -h 127.0.0.1 -p 6379 -a 'P@55w0rd!123'
+# Node Port 127.0.0.1,32100 sa 'P@55w0rd!123'
 
 #### (3) Redis Claim (Hierarchy) 
 
@@ -91,10 +94,30 @@ spec:
       targetPort: 6379 # Port -> (Pod / Container)
 
 ---
-
 #-------------------------------------------------------------------------
-#### (6) Redis LoadBalancer (Hierarchy)
-# - We need LoadBalancer for External Service Access
+#### (5) Redis NodePort (Dev)
+# - We need NodePort for (PC) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-np-redis-dev
+# - CREADENTIALS 127.0.0.1,32100 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-redis-dev
+spec:
+  type: NodePort
+  selector:
+    app: sba-redis-dev
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+      nodePort: 32100 # 30000-32767 (Host Port)
+
+---
+#-------------------------------------------------------------------------
+#### (6) Redis LoadBalancer (Dev)
+# - We need LoadBalancer for (Public) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-lb-redis-dev
 ## Credentials for LoadBalancer

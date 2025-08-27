@@ -6,8 +6,9 @@
 # kubectl rollout restart deployments sba-depl-mssql-dev
 
 ## Connect
-# Server=127.0.0.1,2000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
 # Server=127.0.0.1,32000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
+## Need to Port Forward before using below
+# Server=127.0.0.1,2000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
 
 #### (3) DB Claim (Hierarchy) 
 
@@ -111,7 +112,7 @@ spec:
 ---
 #-------------------------------------------------------------------------
 #### (5) DB NodePort (Hierarchy) (Optional)
-# - We need NodePort for External Service Access
+# - We need NodePort for (PC) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-np-mssql-dev
 # - CREADENTIALS 127.0.0.1,32000 sa 'P@55w0rd!123'
@@ -133,11 +134,11 @@ spec:
 
 #-------------------------------------------------------------------------
 #### (6) DB LoadBalancer (Hierarchy)
-# - We need LoadBalancer for External Service Access
+# - We need LoadBalancer for (Public) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-lb-mssql-dev
 ## Creadentials for LoadBalancer
-# - 127.0.0.1,1433 sa 'P@55w0rd!123'
+# - Not Working 127.0.0.1,1433 sa 'P@55w0rd!123'
 apiVersion: v1
 kind: Service
 metadata:
