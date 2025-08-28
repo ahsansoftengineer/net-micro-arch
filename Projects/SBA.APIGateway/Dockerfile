@@ -42,4 +42,4 @@ ENV DOTNET_ENVIRONMENT=Docker
 
 EXPOSE 1100
 
-ENTRYPOINT [ "dotnet", "Projects/SBA.APIGateway.dll" ]
+ENTRYPOINT [ "dotnet", "SBA.APIGateway.dll" ]

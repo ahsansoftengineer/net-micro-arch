@@ -20,6 +20,7 @@
 # kubectl rollout restart deployments sba-depl-hierarchy
 
 ## BASH DELETE (Deployments & Service)
+# kubectl scale deployment sba-depl-hierarchy --replicas=0
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-hierarchy.yaml
 # kubectl delete deployments sba-depl-hierarchy
 # kubectl delete services sba-srvc-cip-hierarchy

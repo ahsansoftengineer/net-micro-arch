@@ -20,6 +20,7 @@
 # kubectl rollout restart deployments sba-depl-job
 
 ## BASH DELETE (Deployments & Service)8
+# kubectl scale deployment sba-depl-job --replicas=0
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
 # kubectl delete deployments sba-depl-job
 # kubectl delete services sba-srvc-cip-job

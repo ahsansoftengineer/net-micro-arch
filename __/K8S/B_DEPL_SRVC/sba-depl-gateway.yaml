@@ -18,6 +18,7 @@
 # kubectl rollout restart deployments sba-depl-gateway
 
 ## BASH DELETE (Deployments & Service)8
+# kubectl scale deployment sba-depl-gateway --replicas=0
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-gateway.yaml
 # kubectl delete deployments sba-depl-gateway
 # kubectl delete services sba-srvc-cip-gateway

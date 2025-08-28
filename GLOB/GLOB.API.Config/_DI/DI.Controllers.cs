@@ -13,8 +13,8 @@ public static void Add_API_Config_Controller(
     IConfiguration config,
     Action<MvcOptions>? configureMvcOptions = null)
   {
-    var appConfig = config.GetSection("Option_App").Get<Option_App>();
-    appConfig.Print("ENV");
+    // var appConfig = config.Get<Option_App>();
+    // appConfig.Print("ENV");
 
     srvc
       // API Caching 3. Defining Cache Profile

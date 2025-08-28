@@ -1,4 +1,4 @@
-################~~~~ DB SBA Hierarchy ~~~~~##################
+################~~~~ DB SBA Dev ~~~~~##################
 #### Run Command
 ## BASH
 # kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-dev.yaml
@@ -10,7 +10,7 @@
 ## Need to Port Forward before using below
 # Server=127.0.0.1,2000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
 
-#### (3) DB Claim (Hierarchy) 
+#### (3) DB Claim (Dev) 
 
 # - This Task Done Only Once
 # - Creating Claim for Database
@@ -29,7 +29,7 @@ spec:
   - ReadWriteMany
 
 ---
-#### (3) DB Deployment (Hierarchy) 
+#### (3) DB Deployment (Dev) 
 # - kubectl get deployment
 # - kubectl get deployment sba-depl-mssql-dev
 # - kubectl delete deployment sba-depl-mssql-dev
@@ -90,7 +90,7 @@ spec:
 
 ---
 #------------------------------------------------------------------------- 
-#### (4) DB ClusterIP (Hierarchy)
+#### (4) DB ClusterIP (Dev)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
 # - kubectl get svc
@@ -111,7 +111,7 @@ spec:
 
 ---
 #-------------------------------------------------------------------------
-#### (5) DB NodePort (Hierarchy) (Optional)
+#### (5) DB NodePort (Dev) (Optional)
 # - We need NodePort for (PC) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-np-mssql-dev
@@ -133,7 +133,7 @@ spec:
 ---
 
 #-------------------------------------------------------------------------
-#### (6) DB LoadBalancer (Hierarchy)
+#### (6) DB LoadBalancer (Dev)
 # - We need LoadBalancer for (Public) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-lb-mssql-dev

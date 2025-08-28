@@ -17,7 +17,8 @@
 # kubectl logs -l app=sba-srvc-auth --all-containers=true --tail=-1
 # kubectl rollout restart deployments sba-depl-auth
 
-## BASH DELETE (Deployments & Service)8
+## BASH DELETE (Deployments & Service)
+# kubectl scale deployment sba-depl-auth --replicas=0
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-auth.yaml
 # kubectl delete deployments sba-depl-auth
 # kubectl delete services sba-srvc-cip-auth
