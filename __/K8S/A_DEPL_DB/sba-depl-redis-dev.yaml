@@ -74,7 +74,7 @@ spec:
 
 ---
 
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (4) Redis ClusterIP (Hierarchy)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -95,7 +95,7 @@ spec:
       targetPort: 6379 # Port -> (Pod / Container)
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (5) Redis NodePort (Dev)
 # - We need NodePort for (PC) External Service Access
 # - No Production Required
@@ -116,7 +116,7 @@ spec:
       nodePort: 32100 # 30000-32767 (Host Port)
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (6) Redis LoadBalancer (Dev)
 # - We need LoadBalancer for (Public) External Service Access
 # - No Production Required

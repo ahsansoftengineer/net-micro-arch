@@ -11,7 +11,7 @@
 # docker push mansanhhub/sba-srvc-job
 # docker pull mansanhhub/sba-srvc-job
 
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 ## BASH RUN Deployment sba-srvc-job
 # kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
 # kubectl get pods
@@ -24,7 +24,7 @@
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
 # kubectl delete deployments sba-depl-job
 # kubectl delete services sba-srvc-cip-job
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (1) API Deployment (Job) 
 apiVersion: apps/v1
 kind: Deployment
@@ -88,7 +88,7 @@ spec:
               value: "guest"
 
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (2) API Cluster IP (Job)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -113,7 +113,7 @@ spec:
     # nodePort: Not a Valid Option for Cluster IP
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (3) API Node Port (Job)
 # - We need NodePort for External Service Access
 # - No Production Required

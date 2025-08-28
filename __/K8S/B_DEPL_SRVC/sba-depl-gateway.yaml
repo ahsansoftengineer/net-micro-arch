@@ -9,7 +9,7 @@
 # docker push mansanhhub/sba-srvc-gateway
 # docker pull mansanhhub/sba-srvc-gateway
 
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 ## BASH RUN Deployment sba-srvc-gateway
 # kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-gateway.yaml
 # kubectl get pods
@@ -22,7 +22,7 @@
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-gateway.yaml
 # kubectl delete deployments sba-depl-gateway
 # kubectl delete services sba-srvc-cip-gateway
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (1) API Deployment (APIGateway)
 apiVersion: apps/v1
 kind: Deployment
@@ -54,7 +54,7 @@ spec:
               value: ocelot.K8S.json
 
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (2) API Cluster IP (APIGateway)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -78,7 +78,7 @@ spec:
     # nodePort: Not a Valid Option for Cluster IP
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (3) API Node Port (APIGateway)
 # - We need NodePort for External Service Access
 # - No Production Required

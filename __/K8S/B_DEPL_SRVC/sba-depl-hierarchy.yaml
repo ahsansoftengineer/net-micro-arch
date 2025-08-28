@@ -9,7 +9,7 @@
 # docker push mansanhhub/sba-srvc-hierarchy
 # docker pull mansanhhub/sba-srvc-hierarchy
 
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 ## BASH RUN Deployment sba-srvc-hierarchy
 # kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-hierarchy.yaml
 # kubectl get pods
@@ -24,7 +24,7 @@
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-hierarchy.yaml
 # kubectl delete deployments sba-depl-hierarchy
 # kubectl delete services sba-srvc-cip-hierarchy
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (1) API Deployment (Hierarchy) 
 apiVersion: apps/v1
 kind: Deployment
@@ -77,7 +77,7 @@ spec:
             # - name: Clients__RabbitMQz__Uri
             #   value: amqp://guest:guest@sba-srvc-cip-rbmq.default.svc.cluster.local/
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (2) API Cluster IP (Hierarchy)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -101,7 +101,7 @@ spec:
     # nodePort: Not a Valid Option for Cluster IP
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (3) API Node Port (Hierarchy)
 # - We need NodePort for External Service Access
 # - No Production Required

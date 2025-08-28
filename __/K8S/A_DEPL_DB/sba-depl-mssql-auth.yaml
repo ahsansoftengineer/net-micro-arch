@@ -83,7 +83,7 @@ spec:
             claimName: sba-claim-mssql-auth
 
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (4) DB ClusterIP (Auth)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -104,7 +104,7 @@ spec:
       targetPort: 1433 # Port -> (Pod / Container)
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (6) DB LoadBalancer (Auth)
 # - We need LoadBalancer for External Service Access
 # - No Production Required

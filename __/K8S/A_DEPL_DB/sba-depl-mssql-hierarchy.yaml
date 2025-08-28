@@ -96,7 +96,7 @@ spec:
             claimName: sba-claim-mssql-hierarchy
 
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (4) DB ClusterIP (Hierarchy)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -118,7 +118,7 @@ spec:
 
 ---
 
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (6) DB LoadBalancer (Hierarchy) (Optional)
 # - We need LoadBalancer for External Service Access
 # - No Production Required

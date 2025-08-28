@@ -9,7 +9,7 @@
 # docker push mansanhhub/sba-srvc-auth
 # docker pull mansanhhub/sba-srvc-auth
 
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 ## BASH RUN Deployment sba-srvc-auth
 # kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-auth.yaml
 # kubectl get pods
@@ -22,7 +22,7 @@
 # kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-auth.yaml
 # kubectl delete deployments sba-depl-auth
 # kubectl delete services sba-srvc-cip-auth
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (1) API Deployment (Auth) 
 apiVersion: apps/v1
 kind: Deployment
@@ -75,7 +75,7 @@ spec:
             # - name: Clients__RabbitMQz__Uri
             #   value: amqp://guest:guest@sba-srvc-cip-rbmq.default.svc.cluster.local/
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (2) API Cluster IP (Auth)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -99,7 +99,7 @@ spec:
     # nodePort: Not a Valid Option for Cluster IP
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (3) API Node Port (Auth)
 # - We need NodePort for External Service Access
 # - No Production Required

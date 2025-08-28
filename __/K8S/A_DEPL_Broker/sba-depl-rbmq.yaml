@@ -10,14 +10,14 @@
 # kubectl exec -it deploy/sba-depl-rbmq -- rabbitmqctl set_permissions -p /sba admin ".*" ".*" ".*"
 
 
-#-----------------------------#
+#---------------------------------------------#
 # (0) RabbitMQ Virtual Host (vhost)
 # - kubectl get configmaps
 # - kubectl get configmaps cm-def-rabbit
 # - kubectl delete configmaps cm-def-rabbit
 # - kubectl describe configmap cm-def-rabbit
 # - kubectl get configmap cm-def-rabbit -o yaml
-#-----------------------------#
+#---------------------------------------------#
 # apiVersion: v1
 # kind: ConfigMap
 # metadata:
@@ -42,11 +42,13 @@
 
 #### (3) RabbitMQ Claim (Dev) 
 
+#---------------------------------------------#
 # - This Task Done Only Once
 # - Creating Claim for Database
 # kubectl get pvc
 # kubectl get pvc sba-claim-rbmq-dev
 # kubectl delete pvc sba-claim-rbmq-dev
+#---------------------------------------------#
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -59,14 +61,14 @@ spec:
   - ReadWriteMany
 ---
 
-#-----------------------------#
+#---------------------------------------------#
 # (1) RabbitMQ Deployment (SBA)
 # - kubectl get deployment
 # - kubectl get deployment sba-depl-rbmq
 # - docker exec -it contID rabbitmqctl list_users # aec4
 # - docker exec -it aec4 rabbitmqctl list_vhosts
 # - kubectl delete deployment sba-depl-rbmq
-#-----------------------------#
+#---------------------------------------------#
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -133,12 +135,13 @@ spec:
       targetPort: 5672
       protocol: TCP
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (5) DB NodePort (Dev) (Optional)
 # - We need NodePort for (PC) External Service Access
 # - No Production Required
 # - kubectl get svc sba-srvc-np-rbmq-dev
-# - CREADENTIALS 127.0.0.1,32200 sa 'P@55w0rd!123'
+# - CREADENTIALS localhost:32200 sa 'P@55w0rd!123'
+#---------------------------------------------#
 apiVersion: v1
 kind: Service
 metadata:

@@ -89,7 +89,7 @@ spec:
             claimName: sba-claim-mssql-dev
 
 ---
-#------------------------------------------------------------------------- 
+#---------------------------------------------# 
 #### (4) DB ClusterIP (Dev)
 # - We need ClusterIP for Inter Service Communication
 # - Production Required
@@ -110,7 +110,7 @@ spec:
       targetPort: 1433 # Port -> (Pod / Container)
 
 ---
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (5) DB NodePort (Dev) (Optional)
 # - We need NodePort for (PC) External Service Access
 # - No Production Required
@@ -132,7 +132,7 @@ spec:
 
 ---
 
-#-------------------------------------------------------------------------
+#---------------------------------------------#
 #### (6) DB LoadBalancer (Dev)
 # - We need LoadBalancer for (Public) External Service Access
 # - No Production Required
