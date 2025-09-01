@@ -4,49 +4,17 @@ using Newtonsoft.Json;
 using System.Text;
 
 namespace GLOB.API.Clientz;
-public class MsgBusPubFactory : IDisposable
+
+public class MsgBusPubBaseFactory : IDisposable
 {
   protected readonly Option_RabbitMQ _option_RabbitMQ;
   protected IConnection _connection;
   protected IModel _channel;
-  public MsgBusPubFactory(IServiceProvider sp)
+  public MsgBusPubBaseFactory(IServiceProvider sp)
   {
     _option_RabbitMQ = sp.GetSrvc<IOptions<Option_App>>().Value.Clients.RabbitMQz;
-    Init();
   }
-  public void Publish(object data)
-  {
-    try
-    {
-      var message = JsonConvert.SerializeObject(data);
-      if (_connection.IsOpen)
-      {
-        "Connection Open, sending message...".Print("Rabbit MQ");;
-        SendMessage(message);
-      }
-      else
-      {
-        "Connection Close, not sending".Print("Rabbit MQ");
-      }
-    }
-    catch (Exception ex)
-    {
-      $"Serialization failed: {ex.Message}".Print("Rabbit MQ");
-      ex.StackTrace.Print();
-    }
-  }
-  private void SendMessage(string message)
-  {
-    var body = Encoding.UTF8.GetBytes(message);
-    _channel.BasicPublish(
-      exchange: "trigger",
-      routingKey: "",
-      basicProperties: null,
-      body
-    );
-    $"--> We have send: {message}".Print("Rabbit MQ");;
-  }
-  public void Init()
+  public void InitRabbitMQPub(string exchange, string exchangeType)
   {
     var factory = new ConnectionFactory
     {
@@ -61,15 +29,15 @@ public class MsgBusPubFactory : IDisposable
       _channel = _connection.CreateModel();
 
       _channel.ExchangeDeclare(
-          exchange: "trigger",
-          type: ExchangeType.Fanout
+          exchange: exchange,
+          type: exchangeType
       );
       _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
-      "Connection Successfull".Print("Rabbit MQ");;
+      "Connection Successfull".Print("Rabbit MQ"); ;
     }
     catch (Exception ex)
     {
-      $"Connection Failed{ex.Message}".Print("Rabbit MQ");;
+      $"Connection Failed{ex.Message}".Print("Rabbit MQ"); ;
     }
   }
 
@@ -77,7 +45,6 @@ public class MsgBusPubFactory : IDisposable
   {
     "connection was shut down. Jackson".Print("Rabbit MQ");
   }
-  
   public void Dispose()
   {
     if (_channel != null && _channel.IsOpen)
@@ -92,4 +59,35 @@ public class MsgBusPubFactory : IDisposable
       _connection.Dispose();
     }
   }
+
+
+  public void Publish(object data, Action<IModel, byte[]> action = null)
+  {
+    try
+    {
+      var message = JsonConvert.SerializeObject(data);
+      if (_connection.IsOpen)
+      {
+        "Connection Open, sending message...".Print("Rabbit MQ");
+
+        var body = Encoding.UTF8.GetBytes(message);
+
+        if (action != null) {
+          action(_channel, body);
+          $"We have sent: {message}".Print("Rabbit MQ");
+        }
+        else
+          "Action Handler is Missing".Print("Rabbit MQ");
+
+      }
+      else
+        "Connection Closed, not sending".Print("Rabbit MQ");
+    }
+    catch (Exception ex)
+    {
+      $"Serialization failed: {ex.Message}".Print("Rabbit MQ");
+      ex.StackTrace.Print();
+    }
+  }
+
 }
