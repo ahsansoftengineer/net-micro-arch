@@ -6,11 +6,11 @@ using RabbitMQ.Client.Events;
 
 namespace GLOB.API.Clientz;
 
-public class MsgBusSubFactory: MsgBusSubBaseFactory
+public class MsgBusLookupSub: MsgBusSubBaseFactory
 {
-  public MsgBusSubFactory(IServiceProvider sp) : base(sp)
+  public MsgBusLookupSub(IServiceProvider sp) : base(sp)
   {
-    InitRabbitMQ("trigger", ExchangeType.Fanout);
+    InitRabbitMQ("sba", ExchangeType.Fanout);
   }
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
