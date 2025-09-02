@@ -14,20 +14,7 @@ public partial class __RabbitMQController
     // dto.Status = Status.Active;
     try
     {
-      var route = new RabbitMQRoute(MQ_Exch.Auth, Controllerz.Auth.ProjectzLookup)
-      {
-        Typez = ExchangeType.Direct,
-        Key = EP.Add
-      };
-      var param = new RabbitMQParam
-      {
-        payload = new()
-        {
-          Body = dto,
-        },
-        route = route 
-      };
-      _rmqPubs.Pubs(param);
+      _rmqPub.
       $"RabbitMQ : CRUD - Pub - {route.Key}".Print();
       return param.payload.ToExtVMSingle().Ok();
     }

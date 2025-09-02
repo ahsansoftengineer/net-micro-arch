@@ -5,17 +5,15 @@ using System.Text;
 
 namespace GLOB.API.Clientz;
 
-public class MsgBusPubFactory : IDisposable
+public class API_RMQ_Pub : IDisposable
 {
-  private readonly Option_RabbitMQ _option_RabbitMQ;
-  private IConnection _connection;
-  private IModel _channel;
-  public MsgBusPubFactory(IServiceProvider sp)
+  protected readonly Option_RabbitMQ _option_RabbitMQ;
+  protected readonly IConnection _connection;
+  protected readonly IModel _channel;
+  public API_RMQ_Pub(IServiceProvider sp)
   {
     _option_RabbitMQ = sp.GetSrvc<IOptions<Option_App>>().Value.Clients.RabbitMQz;
-  }
-  public void Init(Action<IModel> action = null)
-  {
+
     var factory = new ConnectionFactory
     {
       HostName = _option_RabbitMQ.HostName,
@@ -27,14 +25,22 @@ public class MsgBusPubFactory : IDisposable
     {
       _connection = factory.CreateConnection();
       _channel = _connection.CreateModel();
-
+    }
+    catch (Exception ex)
+    {
+      ex.Print("API_RMQ_Pub");
+    }
+  }
+  protected virtual void Init(Action<IModel> action = null)
+  {
+    try
+    {
       if (action != null)
         action(_channel);
       else
-        "No Exchange Bind to the Channel".Print("Rabbit MQ");
+        "No Exchange Declare".Print("Rabbit MQ");
 
-      
-        _connection.ConnectionShutdown += shotdown;
+      _connection.ConnectionShutdown += Shutdown;
       "Connection Successfull".Print("Rabbit MQ");
     }
     catch (Exception ex)
@@ -42,9 +48,9 @@ public class MsgBusPubFactory : IDisposable
       $"Connection Failed{ex.Message}".Print("Rabbit MQ"); ;
     }
   }
-  private void shotdown(object? sender, ShutdownEventArgs e)
+  protected void Shutdown(object? sender, ShutdownEventArgs e)
   {
-    "connection was shut down. Jackson".Print("Rabbit MQ");
+    "connection Pub was shut down. Jackson".Print("Rabbit MQ");
   }
   public void Publish(object data, Action<IModel, byte[]> action = null)
   {
@@ -57,7 +63,8 @@ public class MsgBusPubFactory : IDisposable
 
         var body = Encoding.UTF8.GetBytes(message);
 
-        if (action != null) {
+        if (action != null)
+        {
           action(_channel, body);
           $"We have sent: {message}".Print("Rabbit MQ");
         }

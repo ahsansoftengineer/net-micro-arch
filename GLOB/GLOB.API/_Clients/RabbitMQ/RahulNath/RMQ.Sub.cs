@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace GLOB.API.Clientz;
 
-public class MsgBusSubBaseFactory: BackgroundService
+public class API_RMQ_Sub: BackgroundService
 {
   protected readonly IConfiguration _config;
   protected readonly IServiceScopeFactory _scopeFactory;
@@ -12,7 +12,7 @@ public class MsgBusSubBaseFactory: BackgroundService
   protected IModel _channel;
   protected string _queueName;
 
-  public MsgBusSubBaseFactory(IServiceProvider sp)
+  public API_RMQ_Sub(IServiceProvider sp)
   {
     _config = sp.GetSrvc<IConfiguration>();
     _scopeFactory = sp.GetSrvc<IServiceScopeFactory>();
@@ -20,7 +20,7 @@ public class MsgBusSubBaseFactory: BackgroundService
     // InitRabbitMQ("trigger", ExchangeType.Fanout);
   }
 
-  protected void InitRabbitMQ(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
+  protected void Init(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
   {
     var factory = new ConnectionFactory()
     {
@@ -42,7 +42,7 @@ public class MsgBusSubBaseFactory: BackgroundService
       exchange: exchange,
       routingKey: route
     );
-    _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
+    _connection.ConnectionShutdown += Shutdown;
 
     "Listening on the Message Bus...".Print("Rabbit MQ");
   }
@@ -53,7 +53,7 @@ public class MsgBusSubBaseFactory: BackgroundService
     return Task.CompletedTask;
   }
 
-  private void RabbitMQ_ConnectionShutdown(object? sender, ShutdownEventArgs e)
+  private void Shutdown(object? sender, ShutdownEventArgs e)
   {
     "Connection Subs was shut down. Rahul".Print("Rabbit MQ");
   }

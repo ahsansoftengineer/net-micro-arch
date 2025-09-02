@@ -7,11 +7,13 @@ public partial class __RabbitMQController : API_1_InjectorController<__RabbitMQC
 {
   private readonly MsgBusPub RabbitMQ_Name;
   private readonly API_RabbitMQ_Base_Pubs _rmqPubs;
+  private readonly API_RMQ_Pub _rmqPub;
   public RabbitMQRoute Route = null;
   public __RabbitMQController(IServiceProvider sp) : base(sp)
   {
     RabbitMQ_Name = sp.GetSrvc<MsgBusPub>();
     _rmqPubs = sp.GetSrvc<API_RabbitMQ_Base_Pubs>();
+    _rmqPub = sp.GetSrvc<API_RMQ_Pub>();
     Route = new RabbitMQRoute(MQ_Exch.Auth, Controllerz.Auth.ProjectzLookup);
   }
 
