@@ -14,9 +14,16 @@ public partial class __RabbitMQController
     // dto.Status = Status.Active;
     try
     {
-      _rmqPub.
-      $"RabbitMQ : CRUD - Pub - {route.Key}".Print();
-      return param.payload.ToExtVMSingle().Ok();
+      _rmqPub.Publish(dto, (channel, bytes) =>
+      {
+       channel.BasicPublish(
+        exchange: "sba.direct",
+        routingKey: "auth.lookup.create",
+        basicProperties: null,
+        bytes
+      );
+      });
+      return dto.ToExtVMSingle().Ok();
     }
     catch (Exception ex)
     {

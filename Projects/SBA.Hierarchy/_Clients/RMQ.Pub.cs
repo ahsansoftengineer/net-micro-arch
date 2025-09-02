@@ -7,16 +7,28 @@ public class Projectz_RMQ_Pub : API_RMQ_Pub
 {
   public Projectz_RMQ_Pub(IServiceProvider sp) : base(sp)
   {
-    this.Init(null);
+    ExchangeDeclare(null);
   }
-  protected override void Init(Action<IModel> action = null)
+  protected override void ExchangeDeclare(Action<IModel> action = null)
   {
-    base.Init((channel) =>
+    base.ExchangeDeclare((channel) =>
     {
       channel.ExchangeDeclare(
         exchange: "sba.direct",
-        type: ExchangeType.Fanout
+        type: ExchangeType.Direct
       );
+      // channel.ExchangeDeclare(
+      //   exchange: "sba.fanout",
+      //   type: ExchangeType.Fanout
+      // );
+      // channel.ExchangeDeclare(
+      //   exchange: "sba.topic",
+      //   type: ExchangeType.Topic
+      // );
+      // channel.ExchangeDeclare(
+      //   exchange: "sba.headers",
+      //   type: ExchangeType.Headers
+      // );
     });
   }
 }

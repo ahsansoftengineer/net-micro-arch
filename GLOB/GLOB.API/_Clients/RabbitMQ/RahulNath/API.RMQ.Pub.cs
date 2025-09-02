@@ -13,16 +13,15 @@ public class API_RMQ_Pub : IDisposable
   public API_RMQ_Pub(IServiceProvider sp)
   {
     _option_RabbitMQ = sp.GetSrvc<IOptions<Option_App>>().Value.Clients.RabbitMQz;
-
-    var factory = new ConnectionFactory
-    {
-      HostName = _option_RabbitMQ.HostName,
-      Port = _option_RabbitMQ.Port,
-      // UserName = _option_RabbitMQ.UserName,
-      // Password = _option_RabbitMQ.Password
-    };
     try
     {
+      var factory = new ConnectionFactory
+      {
+        HostName = _option_RabbitMQ.HostName,
+        Port = _option_RabbitMQ.Port,
+        // UserName = _option_RabbitMQ.UserName,
+        // Password = _option_RabbitMQ.Password
+      };
       _connection = factory.CreateConnection();
       _channel = _connection.CreateModel();
     }
@@ -31,26 +30,26 @@ public class API_RMQ_Pub : IDisposable
       ex.Print("API_RMQ_Pub");
     }
   }
-  protected virtual void Init(Action<IModel> action = null)
+  protected virtual void ExchangeDeclare(Action<IModel> action = null)
   {
     try
     {
       if (action != null)
         action(_channel);
       else
-        "No Exchange Declare".Print("Rabbit MQ");
+        "No Exchange Declare".Print("API_RMQ_Pub");
 
       _connection.ConnectionShutdown += Shutdown;
-      "Connection Successfull".Print("Rabbit MQ");
+      "Connection Successfull".Print("API_RMQ_Pub");
     }
     catch (Exception ex)
     {
-      $"Connection Failed{ex.Message}".Print("Rabbit MQ"); ;
+      $"Connection Failed{ex.Message}".Print("API_RMQ_Pub"); ;
     }
   }
   protected void Shutdown(object? sender, ShutdownEventArgs e)
   {
-    "connection Pub was shut down. Jackson".Print("Rabbit MQ");
+    "connection Pub was shut down. Jackson".Print("API_RMQ_Pub");
   }
   public void Publish(object data, Action<IModel, byte[]> action = null)
   {
@@ -59,25 +58,25 @@ public class API_RMQ_Pub : IDisposable
       var message = JsonConvert.SerializeObject(data);
       if (_connection.IsOpen)
       {
-        "Connection Open, sending message...".Print("Rabbit MQ");
+        "Connection Open, sending message...".Print("API_RMQ_Pub");
 
         var body = Encoding.UTF8.GetBytes(message);
 
         if (action != null)
         {
           action(_channel, body);
-          $"We have sent: {message}".Print("Rabbit MQ");
+          $"We have sent: {message}".Print("API_RMQ_Pub");
         }
         else
-          "Action Handler is Missing".Print("Rabbit MQ");
+          "Action Handler is Missing".Print("API_RMQ_Pub");
 
       }
       else
-        "Connection Closed, not sending".Print("Rabbit MQ");
+        "Connection Closed, not sending".Print("API_RMQ_Pub");
     }
     catch (Exception ex)
     {
-      $"Serialization failed: {ex.Message}".Print("Rabbit MQ");
+      $"Serialization failed: {ex.Message}".Print("API_RMQ_Pub");
       ex.StackTrace.Print();
     }
   }

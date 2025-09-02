@@ -17,19 +17,27 @@ public class API_RMQ_Sub: BackgroundService
     _config = sp.GetSrvc<IConfiguration>();
     _scopeFactory = sp.GetSrvc<IServiceScopeFactory>();
     _option_RabbitMQ = sp.GetSrvc<IOptions<Option_App>>().Value.Clients.RabbitMQz;
-    // InitRabbitMQ("trigger", ExchangeType.Fanout);
+
+    try
+    {
+      var factory = new ConnectionFactory
+      {
+        HostName = _option_RabbitMQ.HostName,
+        Port = _option_RabbitMQ.Port,
+        // UserName = _option_RabbitMQ.UserName,
+        // Password = _option_RabbitMQ.Password
+      };
+      _connection = factory.CreateConnection();
+      _channel = _connection.CreateModel();
+    }
+    catch (Exception ex)
+    {
+      ex.Print("API_RMQ_Sub");
+    }
   }
 
   protected void Init(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
   {
-    var factory = new ConnectionFactory()
-    {
-      HostName = _option_RabbitMQ.HostName,
-      Port = _option_RabbitMQ.Port,
-    };
-
-    _connection = factory.CreateConnection();
-    _channel = _connection.CreateModel();
     _channel.ExchangeDeclare(
       exchange: exchange,
       type: exchangeType
