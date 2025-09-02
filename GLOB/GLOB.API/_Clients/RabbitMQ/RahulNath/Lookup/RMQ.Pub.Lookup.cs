@@ -1,49 +1,39 @@
 using RabbitMQ.Client;
-using Newtonsoft.Json;
-using System.Text;
 
 namespace GLOB.API.Clientz;
 
-public class MsgBusLookupPub : MsgBusPubBaseFactory
+public class MsgBusLookupPub
 {
-  public MsgBusLookupPub(IServiceProvider sp) : base(sp)
+  public MsgBusPubFactory MsgBus { get; }
+  public MsgBusLookupPub(MsgBusPubFactory msgBus)
   {
-    InitRabbitMQPub("sba", ExchangeType.Fanout);
-  }
-  public void LookupCreate(object data)
-  {
-    base.Publish(data, (channel, body) =>
+    MsgBus = msgBus;
+    msgBus.Init((channel) =>
     {
-      channel.BasicPublish(
-        exchange: "sba",
-        routingKey: "lookup-create",
-        basicProperties: null,
-        body
+      channel.ExchangeDeclare(
+        exchange: "sba.direct.lookup",
+        type: ExchangeType.Fanout
       );
     });
   }
-  public void LookupUpdate(object data)
+
+  public void LookupCUDS(object data)
   {
-    base.Publish(data, (channel, body) =>
+    MsgBus.Publish(data, (channel, body) =>
     {
       channel.BasicPublish(
         exchange: "sba",
-        routingKey: "lookup-update",
+        routingKey: "lookup.create",
         basicProperties: null,
         body
       );
-    });
-  }
-  public void LookupStatus(object data)
-  {
-    base.Publish(data, (channel, body) =>
-    {
       channel.BasicPublish(
         exchange: "sba",
-        routingKey: "lookup-update",
+        routingKey: "lookup.update",
         basicProperties: null,
         body
       );
+      //...
     });
   }
 }

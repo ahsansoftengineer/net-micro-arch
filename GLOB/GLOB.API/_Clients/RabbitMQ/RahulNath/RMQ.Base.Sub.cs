@@ -20,7 +20,7 @@ public class MsgBusSubBaseFactory: BackgroundService
     // InitRabbitMQ("trigger", ExchangeType.Fanout);
   }
 
-  protected void InitRabbitMQ(string exchange, string exchangeType)
+  protected void InitRabbitMQ(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
   {
     var factory = new ConnectionFactory()
     {
@@ -40,7 +40,7 @@ public class MsgBusSubBaseFactory: BackgroundService
     _channel.QueueBind(
       queue: _queueName,
       exchange: exchange,
-      routingKey: ""
+      routingKey: route
     );
     _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
 

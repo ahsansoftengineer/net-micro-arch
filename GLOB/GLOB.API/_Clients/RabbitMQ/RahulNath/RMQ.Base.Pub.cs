@@ -5,16 +5,16 @@ using System.Text;
 
 namespace GLOB.API.Clientz;
 
-public class MsgBusPubBaseFactory : IDisposable
+public class MsgBusPubFactory : IDisposable
 {
-  protected readonly Option_RabbitMQ _option_RabbitMQ;
-  protected IConnection _connection;
-  protected IModel _channel;
-  public MsgBusPubBaseFactory(IServiceProvider sp)
+  private readonly Option_RabbitMQ _option_RabbitMQ;
+  private IConnection _connection;
+  private IModel _channel;
+  public MsgBusPubFactory(IServiceProvider sp)
   {
     _option_RabbitMQ = sp.GetSrvc<IOptions<Option_App>>().Value.Clients.RabbitMQz;
   }
-  public void InitRabbitMQPub(string exchange, string exchangeType)
+  public void Init(Action<IModel> action = null)
   {
     var factory = new ConnectionFactory
     {
@@ -28,39 +28,24 @@ public class MsgBusPubBaseFactory : IDisposable
       _connection = factory.CreateConnection();
       _channel = _connection.CreateModel();
 
-      _channel.ExchangeDeclare(
-          exchange: exchange,
-          type: exchangeType
-      );
-      _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
-      "Connection Successfull".Print("Rabbit MQ"); ;
+      if (action != null)
+        action(_channel);
+      else
+        "No Exchange Bind to the Channel".Print("Rabbit MQ");
+
+      
+        _connection.ConnectionShutdown += shotdown;
+      "Connection Successfull".Print("Rabbit MQ");
     }
     catch (Exception ex)
     {
       $"Connection Failed{ex.Message}".Print("Rabbit MQ"); ;
     }
   }
-
-  private void RabbitMQ_ConnectionShutdown(object? sender, ShutdownEventArgs e)
+  private void shotdown(object? sender, ShutdownEventArgs e)
   {
     "connection was shut down. Jackson".Print("Rabbit MQ");
   }
-  public void Dispose()
-  {
-    if (_channel != null && _channel.IsOpen)
-    {
-      _channel.Close();
-      _channel.Dispose();
-    }
-
-    if (_connection != null && _connection.IsOpen)
-    {
-      _connection.Close();
-      _connection.Dispose();
-    }
-  }
-
-
   public void Publish(object data, Action<IModel, byte[]> action = null)
   {
     try
@@ -89,5 +74,18 @@ public class MsgBusPubBaseFactory : IDisposable
       ex.StackTrace.Print();
     }
   }
+  public void Dispose()
+  {
+    if (_channel != null && _channel.IsOpen)
+    {
+      _channel.Close();
+      _channel.Dispose();
+    }
 
+    if (_connection != null && _connection.IsOpen)
+    {
+      _connection.Close();
+      _connection.Dispose();
+    }
+  }
 }

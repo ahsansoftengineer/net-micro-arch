@@ -10,7 +10,7 @@ public class MsgBusLookupSub: MsgBusSubBaseFactory
 {
   public MsgBusLookupSub(IServiceProvider sp) : base(sp)
   {
-    InitRabbitMQ("sba", ExchangeType.Fanout);
+    InitRabbitMQ("lookup.create", "sba", ExchangeType.Fanout);
   }
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
