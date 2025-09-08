@@ -20,7 +20,7 @@ public static partial class Exts
       msg.Print();
       return 0;
     }
-    int value = 0;
+    int value;
     int.TryParse(result, out value);
     return value;
   }

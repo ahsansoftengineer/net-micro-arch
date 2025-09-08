@@ -14,9 +14,7 @@ public static partial class Exts
 
     var properties = obj.GetType().GetProperties();
     foreach (var prop in properties)
-    {
       expando[prop.Name] = prop.GetValue(obj);
-    }
 
     return (ExpandoObject)expando;
   }
@@ -29,9 +27,7 @@ public static partial class Exts
     {
       var dict = (IDictionary<string, object>)expando;
       foreach (var kv in extraProps)
-      {
         dict[kv.Key] = kv.Value;
-      }
     }
 
     return expando;

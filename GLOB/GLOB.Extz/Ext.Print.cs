@@ -17,7 +17,6 @@ public static partial class Exts
   }
   public static void Print(this Exception ex, string? heading = null)
   {
-    
     ex.Source.Print($"💀  {heading ?? "Kaboom"}  💥");
     ex.Message.Print($"💀  {heading ?? "Msg"}  💥");
   }
