@@ -15,7 +15,9 @@ public class Projectz_RMQ_Pub : API_RMQ_Pub
     {
       channel.ExchangeDeclare(
         exchange: "sba.direct",
-        type: ExchangeType.Direct
+        type: ExchangeType.Direct,
+        durable: true,
+        autoDelete: false
       );
       // channel.ExchangeDeclare(
       //   exchange: "sba.fanout",

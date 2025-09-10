@@ -1,4 +1,5 @@
 using GLOB.API.Clientz;
+using SBA.Projectz.Clientz;
 using SBA.Projectz.Mapper;
 namespace SBA.Projectz.DI;
 
@@ -23,8 +24,7 @@ public static partial class DI_Projectz
   {
     srvc.AddSingleton<UOW_API_Httpz>();
     srvc.AddSingleton<MsgBusPub>();
-    srvc.AddSingleton<API_RMQ_Pub>();
-    srvc.Add_API_RabbitMQ(config);
+    srvc.AddSingleton<Projectz_RMQ_Pub>();
   }
   
 }

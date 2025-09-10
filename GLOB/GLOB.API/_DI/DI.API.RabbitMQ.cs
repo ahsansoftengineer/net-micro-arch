@@ -44,9 +44,5 @@ public static partial class DI_API
       return conn;
     });
 
-    srvc.AddSingleton<ChannelManager>();
-    srvc.AddSingleton<API_RabbitMQ_Base>();
-    srvc.AddSingleton<API_RabbitMQ_Base_Pubs>();
-    // srvc.AddSingleton<API_RabbitMQ_Base_Subs>();
   }
 }

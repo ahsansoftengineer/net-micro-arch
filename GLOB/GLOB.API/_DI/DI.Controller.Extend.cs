@@ -13,7 +13,6 @@ public static partial class DI_API
     });
 
     // srvc.AddSingleton<API_RabbitMQ_Base>();
-    // srvc.AddSingleton<API_RabbitMQ_Base_Pubs>();
 
   }
 }

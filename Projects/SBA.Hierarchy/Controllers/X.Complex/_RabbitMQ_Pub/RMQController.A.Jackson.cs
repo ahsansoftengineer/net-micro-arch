@@ -6,16 +6,12 @@ namespace SBA.Auth.Controllers;
 
 public partial class __RabbitMQController : API_1_InjectorController<__RabbitMQController>
 {
-  private readonly MsgBusPub RabbitMQ_Name;
-  private readonly API_RabbitMQ_Base_Pubs _rmqPubs;
+  private readonly MsgBusPub MsgBusJackson;
   private readonly Projectz_RMQ_Pub _rmqPub;
-  public RabbitMQRoute Route = null;
   public __RabbitMQController(IServiceProvider sp) : base(sp)
   {
-    RabbitMQ_Name = sp.GetSrvc<MsgBusPub>();
-    _rmqPubs = sp.GetSrvc<API_RabbitMQ_Base_Pubs>();
+    MsgBusJackson = sp.GetSrvc<MsgBusPub>();
     _rmqPub = sp.GetSrvc<Projectz_RMQ_Pub>();
-    Route = new RabbitMQRoute(MQ_Exch.Auth, Controllerz.Auth.ProjectzLookup);
   }
 
   [HttpPost] [NoCache]
@@ -32,7 +28,7 @@ public partial class __RabbitMQController : API_1_InjectorController<__RabbitMQC
         Status.Active,
         Event = $"ProjectzLookup_{EP.Add}"
       };
-      RabbitMQ_Name.Publish(data);
+      MsgBusJackson.Publish(data);
       return data.ToExtVMSingle().Ok();
     }
     catch (Exception ex)

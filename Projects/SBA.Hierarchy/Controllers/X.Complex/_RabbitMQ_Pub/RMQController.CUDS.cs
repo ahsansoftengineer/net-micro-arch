@@ -1,7 +1,5 @@
 using RabbitMQ.Client;
 
-using GLOB.API.Clientz;
-
 using GLOB.Infra.Utils.Attributez;
 namespace SBA.Auth.Controllers;
 
@@ -20,7 +18,7 @@ public partial class __RabbitMQController
         exchange: "sba.direct",
         routingKey: "auth.lookup.create",
         basicProperties: null,
-        bytes
+        body: bytes
       );
       });
       return dto.ToExtVMSingle().Ok();
@@ -37,20 +35,11 @@ public partial class __RabbitMQController
   {
     try
     {
-      Route.Key = EP.Update;
-      var param = new RabbitMQParam
+      _rmqPub.Publish(dto, (channel, bytes) =>
       {
-        payload = new()
-        {
-          Resource = Id,
-          Body = dto,
-        },
-        route = Route
-      };
-
-      _rmqPubs.Pubs(param);
-      $"CRUD - Pub - {Route.Key}".Print("Rabbit MQ");
-      return param.payload.ToExtVMSingle().Ok();
+       channel.BasicPublish("sba.direct", "auth.lookup.update", null, bytes);
+      });
+      return dto.ToExtVMSingle().Ok();
     }
     catch (Exception ex)
     {
@@ -65,19 +54,11 @@ public partial class __RabbitMQController
   {
     try
     {
-      Route.Key = EP.Delete;
-      var param = new RabbitMQParam
+      _rmqPub.Publish(Id, (channel, bytes) =>
       {
-        payload = new()
-        {
-          Resource = Id,
-        },
-        route = Route
-      };
-
-      _rmqPubs.Pubs(param);
-      $"CRUD - Pub - {Route.Key}".Print("Rabbit MQ");
-      return param.payload.ToExtVMSingle().Ok();
+       channel.BasicPublish("sba.direct", "auth.lookup.delete", null, bytes);
+      });
+      return $"Deleted Successfully".ToExtVMSingle().Ok();
     }
     catch (Exception ex)
     {
@@ -92,20 +73,11 @@ public partial class __RabbitMQController
   {
     try
     {
-      Route.Key = EP.Status;
-      var param = new RabbitMQParam
+      _rmqPub.Publish(dto, (channel, bytes) =>
       {
-        payload = new()
-        {
-          Resource = Id,
-          Body = dto,
-        },
-        route = Route
-      };
-
-      _rmqPubs.Pubs(param);
-      $"CRUD - Pub - {Route.Key}".Print("Rabbit MQ");
-      return param.payload.Ok();
+       channel.BasicPublish("sba.direct", "auth.lookup.status", null, bytes);
+      });
+      return dto.ToExtVMSingle().Ok();
     }
     catch (Exception ex)
     {
