@@ -10,7 +10,6 @@ public class API_RMQ_Sub: BackgroundService
   protected readonly Option_RabbitMQ _option_RabbitMQ;
   protected IConnection _connection;
   protected IModel _channel;
-  protected string _queueName;
 
   public API_RMQ_Sub(IServiceProvider sp)
   {
@@ -52,28 +51,22 @@ public class API_RMQ_Sub: BackgroundService
       $"Connection Failed{ex.Message}".Print("API_RMQ_Sub"); ;
     }
   }
-  protected void Init(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
+  protected virtual string QueueBind(string exchange = "sba", string route = "route-default")
   {
-    _channel.ExchangeDeclare(
-      exchange: exchange,
-      type: exchangeType
-    );
-
-    _queueName = _channel.QueueDeclare().QueueName;
+    string queueName = _channel.QueueDeclare().QueueName;
 
     _channel.QueueBind(
-      queue: _queueName,
+      queue: queueName,
       exchange: exchange,
       routingKey: route
     );
-    _connection.ConnectionShutdown += Shutdown;
-
-    "Listening on the Message Bus...".Print("Rabbit MQ");
+    $"Listening on {exchange} - {route}".Print("Rabbit MQ");
+    return queueName;
   }
 
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    "ExecuteAsync not Implemented".Print("Rabbit MQ");
+    "ExecuteAsync not Overridden".Print("Rabbit MQ");
     return Task.CompletedTask;
   }
 
@@ -81,7 +74,7 @@ public class API_RMQ_Sub: BackgroundService
   {
     "Connection Subs was shut down. Rahul".Print("Rabbit MQ");
   }
-  public override void Dispose()
+  private override void Dispose()
   {
     if (_channel != null && _channel.IsOpen)
     {
