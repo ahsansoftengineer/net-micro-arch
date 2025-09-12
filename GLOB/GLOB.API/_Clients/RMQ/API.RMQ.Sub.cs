@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace GLOB.API.Clientz;
 
@@ -51,7 +52,7 @@ public class API_RMQ_Sub: BackgroundService
       $"Connection Failed{ex.Message}".Print("API_RMQ_Sub"); ;
     }
   }
-  protected virtual string QueueBind(string exchange = "sba", string route = "route-default")
+  protected virtual Task QueueBindAndConsume(string exchange, string route, Func<BasicDeliverEventArgs, Task> handler)
   {
     string queueName = _channel.QueueDeclare().QueueName;
 
@@ -60,10 +61,21 @@ public class API_RMQ_Sub: BackgroundService
       exchange: exchange,
       routingKey: route
     );
-    $"Listening on {exchange} - {route}".Print("Rabbit MQ");
-    return queueName;
-  }
 
+    var consumer = new EventingBasicConsumer(_channel);
+    consumer.Received += async (ModuleHandle, ea) =>
+    {
+      "Message Recieved".Print("Rabbit MQ");
+      await handler(ea);
+    };
+    
+    _channel.BasicConsume(
+      queue: queueName,
+      autoAck: true,
+      consumer: consumer
+    );
+    return Task.CompletedTask;
+  }
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
   {
     "ExecuteAsync not Overridden".Print("Rabbit MQ");

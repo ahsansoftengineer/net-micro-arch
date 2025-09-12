@@ -1,7 +1,5 @@
 using System.Text;
 using GLOB.API.Clientz;
-using GLOB.API.Config.Optionz;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -25,23 +23,10 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
     });
   }
 
-  protected override Task ExecuteAsync(CancellationToken stoppingToken)
+  protected override async Task ExecuteAsync(CancellationToken token)
   {
-    stoppingToken.ThrowIfCancellationRequested();
-    var consumer = new EventingBasicConsumer(_channel);
-    consumer.Received += async (ModuleHandle, ea) =>
-    {
-      "Message Recieved".Print("Rabbit MQ");
-      await ProcessEvent(ea);
-
-    };
-    string queueName = base.QueueBind("sba.direct", "lookup.create");
-    _channel.BasicConsume(
-      queue: queueName,
-      autoAck: true,
-      consumer: consumer
-    );
-    return Task.CompletedTask;
+    token.ThrowIfCancellationRequested();
+    await QueueBindAndConsume("sba.direct", "lookup.create", ProcessEvent);
   }
   public async Task ProcessEvent(BasicDeliverEventArgs ea)
   {
