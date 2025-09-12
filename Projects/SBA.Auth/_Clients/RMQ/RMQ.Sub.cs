@@ -32,10 +32,7 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
     consumer.Received += async (ModuleHandle, ea) =>
     {
       "Message Recieved".Print("Rabbit MQ");
-      var body = ea.Body;
-      var notificationMessage = Encoding.UTF8.GetString(body.ToArray());
-
-      await ProcessEvent(notificationMessage);
+      await ProcessEvent(ea);
 
     };
     string queueName = base.QueueBind("sba.direct", "lookup.create");
@@ -46,10 +43,12 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
     );
     return Task.CompletedTask;
   }
-  public async Task ProcessEvent(string message)
+  public async Task ProcessEvent(BasicDeliverEventArgs ea)
   {
     try
     {
+      var body = ea.Body;
+      var message = Encoding.UTF8.GetString(body.ToArray());
       using var scope = _scopeFactory.CreateScope();
       using var uow = scope.ServiceProvider.GetRequiredService<IUOW_Infra>();
       var model = JsonConvert.DeserializeObject<ProjectzLookup>(message);
