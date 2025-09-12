@@ -74,7 +74,7 @@ public class API_RMQ_Sub: BackgroundService
   {
     "Connection Subs was shut down. Rahul".Print("Rabbit MQ");
   }
-  private override void Dispose()
+  public override void Dispose()
   {
     if (_channel != null && _channel.IsOpen)
     {

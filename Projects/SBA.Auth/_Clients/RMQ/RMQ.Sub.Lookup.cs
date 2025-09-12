@@ -8,11 +8,12 @@ using RabbitMQ.Client.Events;
 
 namespace SBA.Projectz.Clientz;
 
-public class Projectz_RMQ_Sub : API_RMQ_Sub
+public class Projectz_RMQ_Sub_Lookup_Create : API_RMQ_Sub
 {
-  public Projectz_RMQ_Sub(IServiceProvider sp) : base(sp)
+  public Projectz_RMQ_Sub_Lookup_Create(IServiceProvider sp) : base(sp)
   {
-    ExchangeDeclare()
+    ExchangeDeclare();
+    QueueBind();
   }
   protected override void ExchangeDeclare(Action<IModel> action = null)
   {
@@ -24,18 +25,9 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
       );
     });
   }
-  protected void QueueBind(string exchange = "sba", string exchangeType = ExchangeType.Direct, string route = "route-default")
+  protected void QueueBind(string exchange = "sba", string route = "route-default")
   {
-    _queueName = _channel.QueueDeclare().QueueName;
-
-    _channel.QueueBind(
-      queue: _queueName,
-      exchange: exchange,
-      routingKey: route
-    );
-    // _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
-
-    "Listening on the Message Bus...".Print("Rabbit MQ");
+    base.QueueBind("sba.direct", "lookup.create");
   }
 
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
