@@ -13,7 +13,6 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
   public Projectz_RMQ_Sub(IServiceProvider sp) : base(sp)
   {
     ExchangeDeclare();
-    QueueBind();
   }
   protected override void ExchangeDeclare(Action<IModel> action = null)
   {
@@ -24,10 +23,6 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
         type: ExchangeType.Direct
       );
     });
-  }
-  protected void QueueBind(string exchange = "sba", string route = "route-default")
-  {
-    base.QueueBind("sba.direct", "lookup.create");
   }
 
   protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,8 +38,9 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
       await ProcessEvent(notificationMessage);
 
     };
+    string queueName = base.QueueBind("sba.direct", "lookup.create");
     _channel.BasicConsume(
-      queue: _queueName,
+      queue: queueName,
       autoAck: true,
       consumer: consumer
     );
