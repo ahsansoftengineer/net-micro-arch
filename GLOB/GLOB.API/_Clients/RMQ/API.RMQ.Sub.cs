@@ -4,10 +4,10 @@ using RabbitMQ.Client.Events;
 
 namespace GLOB.API.Clientz;
 
-public class API_RMQ_Sub: BackgroundService
+public class API_RMQ_Sub : IDisposable
 {
   protected readonly IConfiguration _config;
-  protected readonly IServiceScopeFactory _scopeFactory;
+  public readonly IServiceScopeFactory _scopeFactory ;
   protected readonly Option_RabbitMQ _option_RabbitMQ;
   protected IConnection _connection;
   protected IModel _channel;
@@ -52,7 +52,7 @@ public class API_RMQ_Sub: BackgroundService
       $"Connection Failed{ex.Message}".Print("API_RMQ_Sub"); ;
     }
   }
-  protected virtual Task QueueBindAndConsume(string exchange, string route, Func<BasicDeliverEventArgs, Task> handler)
+  public virtual Task QueueBindAndConsume(string exchange, string route, Func<BasicDeliverEventArgs, Task> handler)
   {
     string queueName = _channel.QueueDeclare().QueueName;
 
@@ -76,17 +76,12 @@ public class API_RMQ_Sub: BackgroundService
     );
     return Task.CompletedTask;
   }
-  protected override Task ExecuteAsync(CancellationToken stoppingToken)
-  {
-    "ExecuteAsync not Overridden".Print("Rabbit MQ");
-    return Task.CompletedTask;
-  }
 
   private void Shutdown(object? sender, ShutdownEventArgs e)
   {
     "Connection Subs was shut down. Rahul".Print("Rabbit MQ");
   }
-  public override void Dispose()
+  public void Dispose()
   {
     if (_channel != null && _channel.IsOpen)
     {
@@ -99,6 +94,5 @@ public class API_RMQ_Sub: BackgroundService
       _connection.Close();
       _connection.Dispose();
     }
-    base.Dispose();
   }
 }
