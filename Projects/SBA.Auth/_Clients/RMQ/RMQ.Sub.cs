@@ -8,9 +8,9 @@ using RabbitMQ.Client.Events;
 
 namespace SBA.Projectz.Clientz;
 
-public class Projectz_RMQ_Sub_Lookup_Create : API_RMQ_Sub
+public class Projectz_RMQ_Sub : API_RMQ_Sub
 {
-  public Projectz_RMQ_Sub_Lookup_Create(IServiceProvider sp) : base(sp)
+  public Projectz_RMQ_Sub(IServiceProvider sp) : base(sp)
   {
     ExchangeDeclare();
     QueueBind();
