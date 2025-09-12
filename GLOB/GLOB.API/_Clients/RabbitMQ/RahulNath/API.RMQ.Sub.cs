@@ -35,7 +35,23 @@ public class API_RMQ_Sub: BackgroundService
       ex.Print("API_RMQ_Sub");
     }
   }
+  protected virtual void ExchangeDeclare(Action<IModel> action = null)
+  {
+    try
+    {
+      if (action != null)
+        action(_channel);
+      else
+        "No Exchange Declare".Print("API_RMQ_Sub");
 
+      _connection.ConnectionShutdown += Shutdown;
+      "Connection Successfull".Print("API_RMQ_Sub");
+    }
+    catch (Exception ex)
+    {
+      $"Connection Failed{ex.Message}".Print("API_RMQ_Sub"); ;
+    }
+  }
   protected void Init(string route = "route-default", string exchange = "sba", string exchangeType = ExchangeType.Direct)
   {
     _channel.ExchangeDeclare(
