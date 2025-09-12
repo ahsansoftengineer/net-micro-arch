@@ -49,8 +49,10 @@ public class Projectz_RMQ_Sub : API_RMQ_Sub
     {
       var body = ea.Body;
       var message = Encoding.UTF8.GetString(body.ToArray());
+
       using var scope = _scopeFactory.CreateScope();
       using var uow = scope.ServiceProvider.GetRequiredService<IUOW_Infra>();
+
       var model = JsonConvert.DeserializeObject<ProjectzLookup>(message);
 
       if (uow.ProjectzLookupBases.AnyId(model?.ProjectzLookupBaseId ?? 0))
