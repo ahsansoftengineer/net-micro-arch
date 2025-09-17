@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to APIGateway",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "SBA.APIGateway"
+    },
+    {
+      "name": "Attach to Auth",
+      "type": "coreclr",
+      "request": "attach"
+      // "processName": "SBA.Auth",
+      
+    },
+    {
+      "name": "Attach to Hierarchy",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "SBA.Hierarchy"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Attach All",
+      "configurations": [
+        "Attach to APIGateway",
+        "Attach to Auth",
+        "Attach to Hierarchy"
+      ]
+    }
+  ]
+}

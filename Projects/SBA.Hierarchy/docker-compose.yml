@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  sba-srvc-hierarchy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mansanhhub/sba-srvc-hierarchy
+    container_name: sba-srvc-hierarchy
+    environment:
+      - ASPNETCORE_URLS=http://+:1106
+      - DOTNET_ENVIRONMENT=DockerCompose
+    ports:
+      - "1106:1106" # Map host port 1106 to container port 1106
+
+# ### Docker Compose CLI
+# docker-compose up -d --build
+# docker-compose down
+
+# ### ROUTE (Docker Port Mapping)
+# - http://localhost:1106/api/hierarchy/v1/swagger/index.html
+# - http://localhost:1106/api/hierarchy/v1/_projectz-lookup/gets-lookup

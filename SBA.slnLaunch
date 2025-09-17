@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "Ahsan Profile",
+    "Projects": [
+      {
+        "Path": "Projects\\SBA.APIGateway\\SBA.APIGateway.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Projects\\SBA.Job\\SBA.Job.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Projects\\SBA.Auth\\SBA.Auth.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Projects\\SBA.Hierarchy\\SBA.Hierarchy.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  }
+]

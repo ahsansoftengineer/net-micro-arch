@@ -1,0 +1,59 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "watch: SBA.Hierarchy",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/SBA.Hierarchy/SBA.Hierarchy.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "isBackground": true,
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/SBA.Hierarchy"
+      }
+    },
+    {
+      "label": "watch: SBA.APIGateway",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/SBA.APIGateway/SBA.APIGateway.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "isBackground": true,
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/SBA.APIGateway"
+      }
+    },
+    {
+      "label": "watch: SBA.Auth",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/SBA.Auth/SBA.Auth.csproj",
+        "--launch-profile",
+        "https"
+      ],
+      "isBackground": true,
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/SBA.Auth"
+      }
+    }
+  ]
+}

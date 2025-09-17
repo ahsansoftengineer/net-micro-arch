@@ -1,0 +1,17 @@
+Windows Registry Editor Version 5.00
+
+; Enable TLS 1.2 for .NET Framework 4.x
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\v4.0.30319]
+"SchUseStrongCrypto"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319]
+"SchUseStrongCrypto"=dword:00000001
+
+; Enable TLS 1.2 at the OS level
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client]
+"Enabled"=dword:00000001
+"DisabledByDefault"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server]
+"Enabled"=dword:00000001
+"DisabledByDefault"=dword:00000000

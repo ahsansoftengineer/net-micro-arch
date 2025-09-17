@@ -1,0 +1,125 @@
+################~~~~ SBA HIERARCHY ~~~~~##################
+# - Deployment
+# - ClusterIP
+# - Node Port
+
+## BASH BUILD Dockerfile sba-srvc-hierarchy
+## -t tagname, -f file/reference, ./buildContext  
+# docker build -t mansanhhub/sba-srvc-hierarchy -f Projects/SBA.Hierarchy/Dockerfile .
+# docker push mansanhhub/sba-srvc-hierarchy
+# docker pull mansanhhub/sba-srvc-hierarchy
+
+#---------------------------------------------# 
+## BASH RUN Deployment sba-srvc-hierarchy
+# kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-hierarchy.yaml
+# kubectl get pods
+# kubectl get deployments
+# kubectl logs -l app=sba-srvc-hierarchy
+# kubectl logs -l app=sba-srvc-hierarchy --all-containers=true --tail=-1
+# kubectl logs -l app=sba-srvc-hierarchy -f --all-containers=true
+# kubectl rollout restart deployments sba-depl-hierarchy
+
+## BASH DELETE (Deployments & Service)
+# kubectl scale deployment sba-depl-hierarchy --replicas=0
+# kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-hierarchy.yaml
+# kubectl delete deployments sba-depl-hierarchy
+# kubectl delete services sba-srvc-cip-hierarchy
+#---------------------------------------------# 
+#### (1) API Deployment (Hierarchy) 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-hierarchy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sba-srvc-hierarchy
+  template:
+    metadata:
+      labels:
+        app: sba-srvc-hierarchy
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: sba-srvc-hierarchy
+          image: mansanhhub/sba-srvc-hierarchy
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1106
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: K8S
+            - name: ASPNETCORE_URLS
+              value: http://+:1106
+
+            - name: ConnectionStrings__Redis
+              value: "sba-srvc-cip-redis-dev:6379,password=P@55w0rd!123"
+            - name: ConnectionStrings__SqlConnection
+              value: "Server=sba-srvc-cip-mssql-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Hierarchy;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+              # value: "Server=sba-srvc-cip-mssql-hierarchy.default.svc.cluster.local,1433;Initial Catalog=SBA_Hierarchy;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+            
+            - name: Clients__Http_Host__Gateway
+              value: http://sba-srvc-cip-gateway:1100
+            - name: Clients__Http_Host__Auth
+              value: http://sba-srvc-cip-auth:1104
+
+            - name: Clients__RabbitMQz__HostName
+              value: sba-srvc-cip-rbmq.default.svc.cluster.local
+            - name: Clients__RabbitMQz__Port
+              value: "5672"
+            - name: Clients__RabbitMQz__VirtualHost
+              value: /
+            - name: Clients__RabbitMQz__Username
+              value: guest
+            - name: Clients__RabbitMQz__Password
+              value: guest
+            # - name: Clients__RabbitMQz__Uri
+            #   value: amqp://guest:guest@sba-srvc-cip-rbmq.default.svc.cluster.local/
+---
+#---------------------------------------------# 
+#### (2) API Cluster IP (Hierarchy)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# kubectl port-forward svc/sba-srvc-cip-hierarchy 1106:1106
+# http://sba-srvc-cip-hierarchy:1106/api/hierarchy/v1/swagger/index.html
+# http://sba-srvc-cip-hierarchy:1106/api/hierarchy/v1/_projectz-lookup/gets-lookup
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-hierarchy
+spec:
+  type: ClusterIP
+  selector:
+    app: sba-srvc-hierarchy
+  ports:
+  - name: sba-srvc-hierarchy
+    protocol: TCP
+    port: 1106
+    targetPort: 1106
+    # nodePort: Not a Valid Option for Cluster IP
+
+---
+#---------------------------------------------#
+#### (3) API Node Port (Hierarchy)
+# - We need NodePort for External Service Access
+# - No Production Required
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-hierarchy
+spec:
+  type: NodePort
+  selector:
+    app: sba-srvc-hierarchy
+  ports:
+    - name: sba-srvc-hierarchy
+      protocol: TCP
+      port: 1106 # Node Port
+      targetPort: 1106 # Pod's App port
+      nodePort: 31106 # 30000-32767 (Host Port)
+
+## ROUTES (K8S Node Port)
+# - http://localhost:31106/api/Hierarchy/v1/swagger/index.html
+# - http://localhost:31106/api/hierarchy/v1/_projectz-lookup/gets-lookup

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>NU1603;CS8618</NoWarn>
+    <LangVersion>preview</LangVersion>
+    <NoWarn>CS0162;CS8604;CS1998;NETSDK1206</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' and '$(UseNuget)' == ''">
+    <UseNuget>false</UseNuget>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseNuget)' == 'true'">
+    <PackageReference Include="GLOB.Infra" Version="1.0.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseNuget)' == 'false'">
+    <ProjectReference Include="..\..\GLOB\GLOB.Infra\GLOB.Infra.csproj" />
+  </ItemGroup>
+</Project>

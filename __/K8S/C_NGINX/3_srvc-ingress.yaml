@@ -1,0 +1,111 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: srvc-ingress
+  annotations:
+    # kubernetes.io/ingress.class: nginx # ingressClassName
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1 # Rewrite target for matched paths
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ahsan.com
+    http:
+      paths:
+      - path: /api/employee
+        pathType: Prefix
+        backend:
+          service:
+            name: srvc-cip-platforms # Cluster IP
+            port:
+              number: 5401
+      - path: /api/platform
+        pathType: Prefix
+        backend:
+          service:
+            name: srvc-cip-platforms # Cluster IP
+            port:
+              number: 5401
+      - path: /api/c/platforms
+        pathType: Prefix
+        backend:
+          service:
+            name: srvc-cip-commands # Cluster IP
+            port:
+              number: 8401
+      - path: /swagger
+        pathType: Prefix
+        backend:
+          service:
+            name: srvc-cip-platforms
+            port:
+              number: 5401
+
+### RUN NGINX
+# kubectl apply -f 3_srvc-ingress.yaml
+# kubectl delete -f 3_srvc-ingress.yaml
+### ROUTES
+# - While u use Nginx you don't need Node Port
+# - Nginx Proxy Platform -> http://ahsan.com/swagger
+# - Nginx Proxy Platform -> http://ahsan.com/api/platform
+# - Nginx Proxy Platform -> http://ahsan.com/api/platform/1
+# - Nginx Proxy Commands -> http://ahsan.com/api/c/platforms
+
+### Cluster IP
+# - We Need Only Cluster IP for InterService Communication
+
+### To Run it use the Following
+# - 4_K8S-A-Platforms.md (No Node Port)
+# - 4_K8S-A-Commands.md (No Node Port)
+# - 5_K8S-NGINX.md
+# kubectl apply -f 1.3_depl-platforms.yaml
+# kubectl apply -f 1.4_depl-commands.yaml
+# kubectl apply -f 3_srvc-ingress.yaml
+################## INSTALLATION GUIDE ###########################
+### NGINX PROXY SERVER
+## RESOURCE LINKS
+# - [Nginx Docs](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop)
+# - [Git Hub Nginx](https://github.com/kubernetes/ingress-nginx?tab=readme-ov-file)
+
+## BASH TO ADD IN DOCKER
+# - Create Pods for INGRESS NGINX
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/aws/deploy.yaml
+## COMD TO WORK WITH NGINX
+# kubectl get namespace
+# kubectl get pods --namespace=ingress-nginx
+# kubectl get services --namespace=ingress-nginx
+# kubectl delete namespace ingress-nginx
+
+################### WINDOWS ###########################
+## Update the Host file
+# - C:\Windows\System32\drivers\etc
+# Added by Ahsan
+# 127.0.0.1 ahsan.com
+# End of section
+
+# Added by Docker Desktop
+# 192.168.100.191 host.docker.internal
+# 192.168.100.191 gateway.docker.internal
+# 127.0.0.1 kubernetes.docker.internal
+# End of section
+## Nginx Srvc Config
+################### WINDOWS #############################
+
+################# UBUNTU ###########################
+### nano /etc/hosts
+### gedit /etc/hosts
+# 127.0.0.1 ahsan.com
+# 127.0.0.1	localhost
+# 127.0.1.1	pc
+
+# # The following lines are desirable for IPv6 capable hosts
+# ::1     ip6-localhost ip6-loopback
+# fe00::0 ip6-localnet
+# ff00::0 ip6-mcastprefix
+# ff02::1 ip6-allnodes
+# ff02::2 ip6-allrouters
+# # Added by Docker Desktop
+# # To allow the same kube context to work on the host and the container:
+# 127.0.0.1	kubernetes.docker.internal
+# # End of section
+################### UBUNTU ###########################

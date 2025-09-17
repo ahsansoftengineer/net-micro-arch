@@ -1,0 +1,137 @@
+################~~~~ Redis SBA Hierarchy ~~~~~##################
+#### Run Command
+## BASH
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-redis-dev.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-redis-dev.yaml
+# kubectl rollout restart deployments sba-depl-redis-dev
+
+# kubectl port-forward svc/sba-srvc-cip-redis-dev 6379:6379
+# ps aux | grep kubectl
+
+## Connect
+# redis-cli -h 127.0.0.1 -p 6379 -a 'P@55w0rd!123'
+# Node Port 127.0.0.1,32100 sa 'P@55w0rd!123'
+
+#### (3) Redis Claim (Hierarchy) 
+
+# - This Task Done Only Once
+# - Creating Claim for Redis
+# kubectl get pvc
+# kubectl get pvc sba-claim-redis-dev
+# kubectl delete pvc sba-claim-redis-dev
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sba-claim-redis-dev
+spec:
+  resources:
+    requests:
+      storage: 500Mi
+  accessModes:
+  - ReadWriteOnce
+
+---
+
+#### (3) Redis Deployment (Hierarchy) 
+# - kubectl get deployment
+# - kubectl get deployment sba-depl-redis-dev
+# - kubectl delete deployment sba-depl-redis-dev
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-redis-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sba-redis-dev
+  template:
+    metadata:
+      labels:
+        app: sba-redis-dev
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: redis
+          image: redis:latest
+          args: ["redis-server", "--requirepass", "P@55w0rd!123"]
+          ports:
+            - containerPort: 6379
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "500m"
+            requests:
+              memory: 256Mi
+              cpu: "250m"
+          volumeMounts:
+            - mountPath: /data
+              name: redisdb
+      volumes:
+        - name: redisdb
+          persistentVolumeClaim:
+            claimName: sba-claim-redis-dev
+
+---
+
+#---------------------------------------------# 
+#### (4) Redis ClusterIP (Hierarchy)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-cip-redis-dev
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-redis-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: sba-redis-dev
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379 # Port -> Cluster 
+      targetPort: 6379 # Port -> (Pod / Container)
+
+---
+#---------------------------------------------#
+#### (5) Redis NodePort (Dev)
+# - We need NodePort for (PC) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-np-redis-dev
+# - CREADENTIALS 127.0.0.1,32100 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-redis-dev
+spec:
+  type: NodePort
+  selector:
+    app: sba-redis-dev
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+      nodePort: 32100 # 30000-32767 (Host Port)
+
+---
+#---------------------------------------------#
+#### (6) Redis LoadBalancer (Dev)
+# - We need LoadBalancer for (Public) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-lb-redis-dev
+## Credentials for LoadBalancer
+# - 127.0.0.1,6379 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-lb-redis-dev
+spec:
+  type: LoadBalancer
+  selector:
+    app: sba-redis-dev
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379

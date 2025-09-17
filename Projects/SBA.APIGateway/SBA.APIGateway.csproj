@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <NoWarn>CS0162;CS8604;CS1998;NETSDK1206</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' and '$(UseNuget)' == ''">
+    <UseNuget>false</UseNuget>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseNuget)' == 'true'">
+    <PackageReference Include="GLOB.API.Config" Version="1.0.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseNuget)' == 'false'">
+    <ProjectReference Include="..\..\GLOB\GLOB.API.Config\GLOB.API.Config.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MMLib.SwaggerForOcelot" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+  </ItemGroup>
+
+</Project>

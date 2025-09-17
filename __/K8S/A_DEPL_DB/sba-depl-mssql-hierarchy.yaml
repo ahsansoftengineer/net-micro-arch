@@ -1,0 +1,139 @@
+################~~~~ DB SBA Hierarchy ~~~~~##################
+# - Password Secret (Optional)
+# - Persistent Volume Claim (PVC)
+# - Deployment
+# - ClusterIP
+# - Node Port (Optional) External Access
+# - Load Balancer (Optional) External Access
+
+#### Run Command
+## BASH
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-hierarchy.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-hierarchy.yaml
+
+#### (1) DB Password Secret (SQL) (Optional)
+# - Becareful with Password Complexity
+# kubectl create secret generic mssql --from-literal=SA_PASSWORD='P@55w0rd!123' 
+# kubectl describe secret mssql
+# kubectl get secret mssql
+# kubectl delete secret mssql
+#### (3) DB Claim (Hierarchy) 
+
+# - This Task Done Only Once
+# - Creating Claim for Database
+# kubectl get pvc
+# kubectl get pvc sba-claim-mssql-hierarchy
+# kubectl delete pvc sba-claim-mssql-hierarchy
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sba-claim-mssql-hierarchy
+spec:
+  resources:
+    requests:
+      storage: 250Mi
+  accessModes:
+  - ReadWriteMany
+
+---
+#### (3) DB Deployment (Hierarchy) 
+# - kubectl get deployment
+# - kubectl get deployment sba-depl-mssql-hierarchy
+# - kubectl delete deployment sba-depl-mssql-hierarchy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-mssql-hierarchy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql-sba-hierarchy
+  template:
+    metadata:
+      labels:
+        app: mssql-sba-hierarchy
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: "1"
+            requests:
+              memory: 1Gi
+              cpu: "1"
+          env:
+            - name: MSSQL_PID
+              value: "Express"
+            - name: ACCEPT_EULA
+              value: "Y"
+            # - name: SA_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: mssql
+            #       key: SA_PASSWORD
+            # The commented-out line should be removed if you're using the secret reference
+            - name: SA_PASSWORD
+              value: "P@55w0rd!123"
+          volumeMounts:
+            - mountPath: /var/opt/mssql/data
+              name: mssqldb
+      initContainers:
+        - name: fix-perms
+          image: busybox
+          command: ["sh", "-c", "chown -R 10001:0 /var/opt/mssql"]
+          volumeMounts:
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: sba-claim-mssql-hierarchy
+
+---
+#---------------------------------------------# 
+#### (4) DB ClusterIP (Hierarchy)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-cip-mssql-hierarchy
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-mssql-hierarchy
+spec:
+  type: ClusterIP
+  selector:
+    app: mssql-sba-hierarchy
+  ports:
+    - name: mssql
+      protocol: TCP
+      port: 1433 # Port -> Cluster 
+      targetPort: 1433 # Port -> (Pod / Container)
+
+---
+
+#---------------------------------------------#
+#### (6) DB LoadBalancer (Hierarchy) (Optional)
+# - We need LoadBalancer for External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-lb-mssql-hierarchy
+## Creadentials for LoadBalancer
+# - 127.0.0.1,1433 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-lb-mssql-hierarchy
+spec:
+  type: LoadBalancer
+  selector:
+    app: mssql-sba-hierarchy
+  ports:
+    - protocol: TCP
+      port: 2006 # External
+      targetPort: 1433

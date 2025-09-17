@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/mssql/server:2022-latest
+
+## Image is for All SQL Containers
+ENV ACCEPT_EULA=Y
+ENV MSSQL_PID=Express
+ENV SA_PASSWORD="P@55w0rd!123"
+
+EXPOSE 1433
+
+ENTRYPOINT ["/opt/mssql/bin/sqlservr"]
+
+## For Local Development
+# docker build -t sql-local-image -f DockerfileSQL .
+# docker run -d -p 1430:1433 --name sql-local-container sql-local-image
+# ./PlatformService dotnet watch
+# ./CommandService dotnet watch

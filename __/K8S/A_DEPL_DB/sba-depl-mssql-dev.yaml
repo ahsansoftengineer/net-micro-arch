@@ -1,0 +1,153 @@
+################~~~~ DB SBA Dev ~~~~~##################
+#### Run Command
+## BASH
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-dev.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-dev.yaml
+# kubectl rollout restart deployments sba-depl-mssql-dev
+
+## Connect
+# Server=127.0.0.1,32000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
+## Need to Port Forward before using below
+# Server=127.0.0.1,2000;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;
+
+#### (3) DB Claim (Dev) 
+
+# - This Task Done Only Once
+# - Creating Claim for Database
+# kubectl get pvc
+# kubectl get pvc sba-claim-mssql-dev
+# kubectl delete pvc sba-claim-mssql-dev
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sba-claim-mssql-dev
+spec:
+  resources:
+    requests:
+      storage: 500Mi
+  accessModes:
+  - ReadWriteMany
+
+---
+#### (3) DB Deployment (Dev) 
+# - kubectl get deployment
+# - kubectl get deployment sba-depl-mssql-dev
+# - kubectl delete deployment sba-depl-mssql-dev
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-mssql-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sba-mssql-dev
+  template:
+    metadata:
+      labels:
+        app: sba-mssql-dev
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          resources:
+            limits:
+              memory: 2Gi # --> Ubuntu 1Gi / Windows 2Gi
+              cpu: "1"
+            requests:
+              memory: 2Gi # --> Ubuntu 1Gi / Windows 2Gi
+              cpu: "1"
+          env:
+            - name: MSSQL_PID
+              value: "Express"
+            - name: ACCEPT_EULA
+              value: "Y"
+            # - name: SA_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: mssql
+            #       key: SA_PASSWORD
+            # The commented-out line should be removed if you're using the secret reference
+            - name: SA_PASSWORD
+              value: "P@55w0rd!123"
+          volumeMounts:
+            - mountPath: /var/opt/mssql/data
+              name: mssqldb
+      initContainers:
+        - name: fix-perms
+          image: busybox
+          command: ["sh", "-c", "chown -R 10001:0 /var/opt/mssql"]
+          volumeMounts:
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: sba-claim-mssql-dev
+
+---
+#---------------------------------------------# 
+#### (4) DB ClusterIP (Dev)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-cip-mssql-dev
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-mssql-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: sba-mssql-dev
+  ports:
+    - name: mssql
+      protocol: TCP
+      port: 1433 # Port -> Cluster 
+      targetPort: 1433 # Port -> (Pod / Container)
+
+---
+#---------------------------------------------#
+#### (5) DB NodePort (Dev) (Optional)
+# - We need NodePort for (PC) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-np-mssql-dev
+# - CREADENTIALS 127.0.0.1,32000 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-mssql-dev
+spec:
+  type: NodePort
+  selector:
+    app: sba-mssql-dev
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433
+      nodePort: 32000 # 30000-32767 (Host Port)
+
+---
+
+#---------------------------------------------#
+#### (6) DB LoadBalancer (Dev)
+# - We need LoadBalancer for (Public) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-lb-mssql-dev
+## Creadentials for LoadBalancer
+# - Not Working 127.0.0.1,1433 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-lb-mssql-dev
+spec:
+  type: LoadBalancer
+  selector:
+    app: sba-mssql-dev
+  ports:
+    - protocol: TCP
+      port: 2000 # External
+      targetPort: 1433

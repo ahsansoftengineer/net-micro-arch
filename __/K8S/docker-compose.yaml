@@ -1,0 +1,88 @@
+## Docker Compose CLI
+# -p project-5
+# docker-compose -f ./__/K8S/docker-compose.yaml up -d --build
+# docker-compose -f ./__/K8S/docker-compose.yaml down
+# docker exec -it id sh
+# printenv DOTNET_ENVIRONMENT
+
+### ROUTE (Docker-Compose Bridge Network)
+# - http://localhost:1100/api/APIGateway/v1/swagger/index.html
+# - http://localhost:1104/api/Auth/v1/swagger/index.html
+# - http://localhost:1106/api/Hierarchy/v1/swagger/index.html
+
+### InterService Comm (Bridge Network)
+# - http://srvc-dc-api-sba-auth:1104/api/Auth/v1/
+# - http://srvc-dc-api-sba-auth:1106/api/Hierarchy/v1/
+
+version: "3.9"
+services:
+  srvc-dc-mssql-sba:
+    image: mansanhhub/srvc-dc-mssql-dev-all
+    container_name: srvc-dc-mssql-sba
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=P@55w0rd!123
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-vol-dc:/var/opt/mssql
+      - ./sql:/sql:ro  # This mounts your SQL script(s)
+    networks:
+      - network-dc-sba
+    command: >
+      /bin/bash -c "
+        /opt/mssql/bin/sqlservr & 
+        sleep 30 && 
+        /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'P@55w0rd!123' -i /sql/init.sql
+      "
+
+  srvc-dc-api-sba-gateway:
+    image: mansanhhub/srvc-dc-api-sba-gateway
+    container_name: srvc-dc-api-sba-gateway
+    build:
+      context: ../SBA.APIGateway/
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:1100
+      - DOTNET_ENVIRONMENT=DockerCompose
+    ports:
+      - "1100:1100"
+    networks:
+      - network-dc-sba
+  srvc-dc-api-sba-auth:
+    image: mansanhhub/srvc-dc-api-sba-auth
+    container_name: srvc-dc-api-sba-auth
+    build:
+      context: ../SBA.Auth/
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:1104
+      - DOTNET_ENVIRONMENT=DockerCompose
+      - ConnectionStrings__SqlConnection="Server=network-dc-sba,1433;Initial Catalog=SBA_Auth;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+    ports:
+      - "1104:1104"
+    networks:
+      - network-dc-sba
+  srvc-dc-api-sba-hierarchy:
+    image: mansanhhub/srvc-dc-api-sba-hierarchy
+    container_name: srvc-dc-api-sba-hierarchy
+    build:
+      context: ../SBA.Hierarchy/
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:1106
+      - DOTNET_ENVIRONMENT=DockerCompose
+      - ConnectionStrings__SqlConnection="Server=network-dc-sba,1433;Initial Catalog=SBA_Auth;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+    ports:
+      - "1106:1106"
+    networks:
+      - network-dc-sba
+
+networks:
+  network-dc-sba:
+    driver: bridge
+
+volumes:
+  sql-vol-dc:
+    driver: local

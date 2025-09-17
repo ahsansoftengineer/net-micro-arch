@@ -1,0 +1,138 @@
+################~~~~ SBA JOB ~~~~~##################
+# - Deployment
+# - ClusterIP
+# - Node Port
+
+## BASH BUILD Dockerfile sba-srvc-job
+## -t tagname, -f file/reference, ./buildContext  
+# docker system prune
+# docker build -t mansanhhub/sba-srvc-job -f Projects/SBA.Job/Dockerfile .
+# kubectl get nodes -o wide
+# docker push mansanhhub/sba-srvc-job
+# docker pull mansanhhub/sba-srvc-job
+
+#---------------------------------------------# 
+## BASH RUN Deployment sba-srvc-job
+# kubectl apply -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
+# kubectl get pods
+# kubectl get deployments
+# kubectl logs -l app=sba-srvc-job --all-containers=true --tail=-1
+# kubectl rollout restart deployments sba-depl-job
+
+## BASH DELETE (Deployments & Service)8
+# kubectl scale deployment sba-depl-job --replicas=0
+# kubectl delete -f ./__/K8S/B_DEPL_SRVC/sba-depl-job.yaml
+# kubectl delete deployments sba-depl-job
+# kubectl delete services sba-srvc-cip-job
+#---------------------------------------------# 
+#### (1) API Deployment (Job) 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-job
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sba-srvc-job
+  template:
+    metadata:
+      labels:
+        app: sba-srvc-job
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: sba-srvc-job
+          image: mansanhhub/sba-srvc-job
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1102
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: K8S
+            - name: ASPNETCORE_URLS
+              value: http://+:1102
+
+            - name: ConnectionStrings__Redis
+              value: "sba-srvc-cip-redis-dev:6379,password=P@55w0rd!123"
+            - name: ConnectionStrings__SqlConnection
+              value: "Server=sba-srvc-cip-mssql-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+            - name: ConnectionStrings__SqlConnectionHangfire
+              value: "Server=sba-srvc-cip-mssql-dev.default.svc.cluster.local,1433;Initial Catalog=SBA_Job_Hangfire;User ID=sa;Password=P@55w0rd!123;TrustServerCertificate=true;"
+            - name: ConnectionStrings__SQLite
+              value: "Job.SQLite.db"
+
+            - name: Clients__Http_Host__Gateway
+              value: http://sba-srvc-cip-gateway:1100
+            - name: Clients__Http_Host__Auth
+              value: http://sba-srvc-cip-auth:1104
+
+            - name: Clients__RabbitMQz__HostName
+              value: sba-srvc-cip-rbmq
+            - name: Clients__RabbitMQz__Port
+              value: "5672"
+            - name: Clients__RabbitMQz__VirtualHost
+              value: /
+            - name: Clients__RabbitMQz__Username
+              value: admin
+            - name: Clients__RabbitMQz__Password
+              value: admin123
+
+            - name: Hangfire__Title
+              value: "Hangfire SBA App"
+            - name: Hangfire__Note
+              value: "Its a List But required only one"
+            - name: Hangfire__Users__0__User
+              value: "guest"
+            - name: Hangfire__Users__0__Pass
+              value: "guest"
+
+---
+#---------------------------------------------# 
+#### (2) API Cluster IP (Job)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# kubectl port-forward svc/sba-srvc-cip-job 1102:1102
+# http://sba-srvc-cip-job:1102/api/job/v1/swagger/index.html
+# http://sba-srvc-cip-job:1102/api/job/v1/_projectz-lookup/gets-lookup
+# http://sba-srvc-cip-job:1102/api/job/v1/hangfire
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-job
+spec:
+  type: ClusterIP
+  selector:
+    app: sba-srvc-job
+  ports:
+  - name: sba-srvc-job
+    protocol: TCP
+    port: 1102
+    targetPort: 1102
+    # nodePort: Not a Valid Option for Cluster IP
+
+---
+#---------------------------------------------#
+#### (3) API Node Port (Job)
+# - We need NodePort for External Service Access
+# - No Production Required
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-job
+spec:
+  type: NodePort
+  selector:
+    app: sba-srvc-job
+  ports:
+    - name: sba-srvc-job
+      protocol: TCP
+      port: 1102 # Node Port
+      targetPort: 1102 # Pod's App port
+      nodePort: 31102 # 30000-32767 (Host Port)
+
+## ROUTES (K8S Node Port)
+# - http://localhost:31102/api/Job/v1/swagger/index.html
+# - http://localhost:31102/api/Job/v1/_projectz-lookup/gets-lookup
+# - http://localhost:31102/api/Job/v1/hangfire

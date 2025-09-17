@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug APIGateway",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/SBA.APIGateway/bin/Debug/net8.0/SBA.APIGateway.dll",
+      "args": [
+        "--launch-profile", "https"
+      ],
+      "cwd": "${workspaceFolder}/SBA.APIGateway",
+      "stopAtEntry": false,
+      "launchBrowser": {
+        "enabled": true,
+        "args": "https://localhost:1100"
+      }
+    },
+    {
+      "name": "Debug Auth",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/SBA.Auth/bin/Debug/net8.0/SBA.Auth.dll",
+      "args": [
+        "--launch-profile", "https"
+      ],
+      "cwd": "${workspaceFolder}/SBA.Auth",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Debug Hierarchy",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/SBA.Hierarchy/bin/Debug/net8.0/SBA.Hierarchy.dll",
+      "args": [
+        "--launch-profile", "https"
+      ],
+      "cwd": "${workspaceFolder}/SBA.Hierarchy",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug All Microservices",
+      "configurations": [
+        "Debug APIGateway",
+        "Debug Auth",
+        "Debug Hierarchy"
+      ]
+    }
+  ]
+}

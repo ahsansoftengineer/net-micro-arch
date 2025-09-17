@@ -1,0 +1,6 @@
+@SBA.Job_HostAddress = http://localhost:5054
+
+GET {{SBA.Job_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

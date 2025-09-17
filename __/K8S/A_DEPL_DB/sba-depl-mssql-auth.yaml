@@ -1,0 +1,125 @@
+################~~~~ DB SBA Auth ~~~~~##################
+#### Run Command
+## BASH
+# kubectl apply -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-auth.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_DB/sba-depl-mssql-auth.yaml
+
+#### (3) DB Claim (Auth) 
+
+# - This Task Done Only Once
+# - Creating Claim for Database
+# kubectl get pvc
+# kubectl get pvc sba-claim-mssql-auth
+# kubectl delete pvc sba-claim-mssql-auth
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sba-claim-mssql-auth
+spec:
+  resources:
+    requests:
+      storage: 250Mi
+  accessModes:
+  - ReadWriteMany
+
+---
+#### (3) DB Deployment (Auth) 
+# - kubectl get deployment
+# - kubectl get deployment sba-depl-mssql-auth
+# - kubectl delete deployment sba-depl-mssql-auth
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-mssql-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql-sba-auth
+  template:
+    metadata:
+      labels:
+        app: mssql-sba-auth
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: "1"
+            requests:
+              memory: 1Gi
+              cpu: "1"
+          env:
+            - name: MSSQL_PID
+              value: "Express"
+            - name: ACCEPT_EULA
+              value: "Y"
+            # - name: SA_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: mssql
+            #       key: SA_PASSWORD
+            # The commented-out line should be removed if you're using the secret reference
+            - name: SA_PASSWORD
+              value: "P@55w0rd!123"
+          volumeMounts:
+            - mountPath: /var/opt/mssql/data
+              name: mssqldb
+      initContainers:
+        - name: fix-perms
+          image: busybox
+          command: ["sh", "-c", "chown -R 10001:0 /var/opt/mssql"]
+          volumeMounts:
+            - name: mssqldb
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: mssqldb
+          persistentVolumeClaim:
+            claimName: sba-claim-mssql-auth
+
+---
+#---------------------------------------------# 
+#### (4) DB ClusterIP (Auth)
+# - We need ClusterIP for Inter Service Communication
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-cip-mssql-auth
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-mssql-auth
+spec:
+  type: ClusterIP
+  selector:
+    app: mssql-sba-auth
+  ports:
+    - name: mssql
+      protocol: TCP
+      port: 1433 # Port -> Cluster 
+      targetPort: 1433 # Port -> (Pod / Container)
+
+---
+#---------------------------------------------#
+#### (6) DB LoadBalancer (Auth)
+# - We need LoadBalancer for External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-lb-mssql-auth
+## Creadentials for LoadBalancer
+# - 127.0.0.1,1433 sa 'P@55w0rd!123'
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-lb-mssql-auth
+spec:
+  type: LoadBalancer
+  selector:
+    app: mssql-sba-auth
+  ports:
+    - protocol: TCP
+      port: 2004 # External
+      targetPort: 1433

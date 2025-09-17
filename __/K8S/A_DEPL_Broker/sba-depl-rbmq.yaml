@@ -1,0 +1,183 @@
+################~~~~ Rabbit MQ SBA ~~~~~##################
+#### Run Command
+## BASH
+# kubectl apply -f ./__/K8S/A_DEPL_Broker/sba-depl-rbmq.yaml
+# kubectl delete -f ./__/K8S/A_DEPL_Broker/sba-depl-rbmq.yaml
+# kubectl rollout restart deployments sba-depl-rbmq
+
+## Adding VHost to RabbitMQ
+# kubectl exec -it deploy/sba-depl-rbmq -- rabbitmqctl add_vhost /sba
+# kubectl exec -it deploy/sba-depl-rbmq -- rabbitmqctl set_permissions -p /sba admin ".*" ".*" ".*"
+
+
+#---------------------------------------------#
+# (0) RabbitMQ Virtual Host (vhost)
+# - kubectl get configmaps
+# - kubectl get configmaps cm-def-rabbit
+# - kubectl delete configmaps cm-def-rabbit
+# - kubectl describe configmap cm-def-rabbit
+# - kubectl get configmap cm-def-rabbit -o yaml
+#---------------------------------------------#
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: cm-def-rabbit
+# data:
+#   definitions.json: |
+#     {
+#       "vhosts": [
+#         { "name": "/sba" }
+#       ],
+#       "permissions": [
+#         {
+#           "user": "admin",
+#           "vhost": "/sba",
+#           "configure": ".*",
+#           "write": ".*",
+#           "read": ".*"
+#         }
+#       ]
+#     }
+# ---
+
+#### (3) RabbitMQ Claim (Dev) 
+
+#---------------------------------------------#
+# - This Task Done Only Once
+# - Creating Claim for Database
+# kubectl get pvc
+# kubectl get pvc sba-claim-rbmq-dev
+# kubectl delete pvc sba-claim-rbmq-dev
+#---------------------------------------------#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sba-claim-rbmq-dev
+spec:
+  resources:
+    requests:
+      storage: 500Mi
+  accessModes:
+  - ReadWriteMany
+---
+
+#---------------------------------------------#
+# (1) RabbitMQ Deployment (SBA)
+# - kubectl get deployment
+# - kubectl get deployment sba-depl-rbmq
+# - docker exec -it contID rabbitmqctl list_users # aec4
+# - docker exec -it aec4 rabbitmqctl list_vhosts
+# - kubectl delete deployment sba-depl-rbmq
+#---------------------------------------------#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sba-depl-rbmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sba-rbmq-dev
+  template:
+    metadata:
+      labels:
+        app: sba-rbmq-dev
+    spec:
+      enableServiceLinks: false   # ✅ disables auto-injected env vars
+      containers:
+        - name: rbmq
+          image: rabbitmq:3-management
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: guest
+            - name: RABBITMQ_DEFAULT_PASS
+              value: guest
+            - name: RABBITMQ_LOAD_DEFINITIONS
+              value: /etc/rabbitmq/definitions.json
+          ports:
+            - name: management
+              containerPort: 15672
+              protocol: TCP
+            - name: amqp
+              containerPort: 5672
+              protocol: TCP
+          volumeMounts:
+            - name: rbmq-data
+              mountPath: /var/lib/rabbitmq   # ✅ correct RabbitMQ data dir
+              
+      volumes:
+        - name: rbmq-data
+          persistentVolumeClaim:
+            claimName: sba-claim-rbmq-dev
+---
+#---------------------------------------------#
+# (2) RabbitMQ ClusterIP Service (for internal)
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-cip-rbmq
+#---------------------------------------------#
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-cip-rbmq
+spec:
+  type: ClusterIP
+  selector:
+    app: sba-rbmq-dev
+  ports:
+    - name: management
+      port: 15672
+      targetPort: 15672
+      protocol: TCP
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+      protocol: TCP
+---
+#---------------------------------------------#
+#### (5) DB NodePort (Dev) (Optional)
+# - We need NodePort for (PC) External Service Access
+# - No Production Required
+# - kubectl get svc sba-srvc-np-rbmq-dev
+# - CREADENTIALS localhost:32200 sa 'P@55w0rd!123'
+#---------------------------------------------#
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-np-rbmq-dev
+spec:
+  type: NodePort
+  selector:
+    app: sba-rbmq-dev
+  ports:
+    - protocol: TCP
+      port: 15672
+      targetPort: 15672
+      nodePort: 32200 # 30000-32767 (Host Port)
+
+---
+#---------------------------------------------#
+# (3) RabbitMQ LoadBalancer Service (external)
+# - Production Required
+# - kubectl get svc
+# - kubectl get svc sba-srvc-lb-rbmq
+# - http://localhost:15670/#/exchanges
+#---------------------------------------------#
+apiVersion: v1
+kind: Service
+metadata:
+  name: sba-srvc-lb-rbmq
+spec:
+  type: LoadBalancer
+  selector:
+    app: sba-rbmq-dev
+  ports:
+    - name: management
+      port: 15670 # External Port
+      targetPort: 15672
+      protocol: TCP
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+      protocol: TCP

@@ -1,0 +1,35 @@
+{
+  "folders": [
+    {
+      "name": "__",
+      "path": "./__"
+    },
+    {
+      "name": "GLOB",
+      "path": "./GLOB"
+    },
+    {
+      "name": "SBA.APIGateway",
+      "path": "./Projects/SBA.APIGateway"
+    },
+    {
+      "name": "SBA.Job",
+      "path": "./Projects/SBA.Job"
+    },
+    {
+      "name": "SBA.Auth",
+      "path": "./Projects/SBA.Auth"
+    },
+    {
+      "name": "SBA.Hierarchy",
+      "path": "./Projects/SBA.Hierarchy"
+    },
+    {
+      "name": "sb-micro",
+      "path": "."
+    },
+  ],
+  "settings": {
+    "dotnet.defaultSolution": "sb-micro/SBA.sln"
+  }
+}
