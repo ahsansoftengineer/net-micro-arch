@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option csharp_namespace = "GLOB";
+
+message GetAllLookup {}
+
+message GrpcLookupModel {
+    int32 lookupId = 1;
+    string name = 2;
+    string publisher = 3;
+}
+
+message LookupRes {
+    repeated GrpcLookupModel 
+}
