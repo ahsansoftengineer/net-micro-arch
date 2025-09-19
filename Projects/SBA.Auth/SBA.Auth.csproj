@@ -35,4 +35,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="_Clients\Rpc\lookup.proto" GrpcServices="Server" />
+  </ItemGroup>
 </Project>

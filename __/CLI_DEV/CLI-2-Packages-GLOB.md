@@ -48,6 +48,6 @@ dotnet add ./GLOB/GLOB.API/ package RabbitMQ.Client -v 7.1.2
 dotnet add ./GLOB/GLOB.API/ package Grpc.Tools -v 2.72.0
 dotnet add ./GLOB/GLOB.API/ package Grpc.Net.Client -v 2.71.0
 dotnet add ./GLOB/GLOB.API/ package Google.protobuf -v 2.71.0
-dotnet add ./GLOB/GLOB.API/ package ncalc -v 1.3.8 # '2 + 2'
+dotnet add ./GLOB/GLOB.API/ package NCalcAsync  # '2 + 2'
 ```
 

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "GLOB.Infra.Model";
+
+service GrpcLookup {
+    rpc GetAllLookups (GetAllRequest) returns (LookupRes);
+}
+
+message GetAllRequest {}
+
+message GrpcLookupModel {
+    int32 lookupId = 1;
+    string name = 2;
+    string publisher = 3;
+}
+
+message LookupRes {
+    repeated GrpcLookupModel platform = 1;
+}
